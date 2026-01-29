@@ -2,69 +2,110 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Construcción de acordes — (v15.1 Feedback Aumentado)</title>
-  <meta name="description" content="Juego profesional con feedback de error fuerte." />
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
+  <title>Construcción de acordes — (v30 Piano Libre + Dictados Fácil)</title>
+  <meta name="description" content="Juego: construir acordes con sistema de progresión y selección de sonido." />
   <style>
 :root{
   --bg:#0f1724; --card:#071428; --accent:#60a5fa; --accent-2:#a259e6; --text:#e6eef8;
   --muted:#9fb7d8; --success:#51cf66; --danger:#fa5252; --whiteKey:#ffffff; --blackKey:#111216;
   --helpA:#f59e0b; --helpB:#fb923c; --historyA:#2b3a55; --historyB:#34495e;
-  --shadow: 0 8px 30px rgba(0,0,0,0.6);
-  --shadow-btn: 0 6px 18px rgba(0,0,0,0.4);
-  --transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --stat-card-bg: rgba(255,255,255,0.05);
+  --free-piano-bg: linear-gradient(135deg, #2dd4bf 0%, #3a7bd5 100%);
 }
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:linear-gradient(180deg,var(--bg) 0%, #071827 100%);color:var(--text);-webkit-font-smoothing:antialiased;}
-main{max-width:980px;margin:18px auto;padding:16px;padding-bottom: 40px;}
+*{box-sizing:border-box; touch-action: manipulation; } 
+html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:linear-gradient(180deg,var(--bg) 0%, #071827 100%);color:var(--text);-webkit-font-smoothing:antialiased; overflow-x: hidden;}
 
-/* MENU & TYPOGRAPHY */
-.menu-title-main { font-weight:900; font-size:1.5rem; margin-bottom:6px; letter-spacing: -0.02em; }
-.menu-subtitle { color:var(--muted); margin-bottom:20px; font-weight:500; }
+main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; display: flex; flex-direction: column;}
 
-/* CARDS */
-.menu-panel{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));padding:24px;border-radius:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);}
-.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:24px;border-radius:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05); margin-top:20px;}
+.menu-title-main { font-weight:900; font-size:1.3rem; margin-bottom:6px; text-shadow: 0 0 10px rgba(96,165,250,0.3); }
+.menu-subtitle { color:var(--muted); margin-bottom:12px; }
 
-/* BUTTONS */
-.btn{border:none;padding:12px 18px;border-radius:12px;background:linear-gradient(90deg,var(--accent-2),var(--accent));color:#fff;font-weight:700;cursor:pointer;box-shadow:var(--shadow-btn);transition:var(--transition);font-size:0.95rem; border:1px solid rgba(255,255,255,0.1); }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.5); filter: brightness(1.1); }
-.btn:active { transform: translateY(1px); box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+.menu-panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6); position: relative;}
 
-.helpBtn{background:linear-gradient(90deg,var(--helpA),var(--helpB));color:#111;font-weight:800;}
-.historyBtn{background:linear-gradient(90deg,var(--historyA),var(--historyB));border:1px solid rgba(255,255,255,0.1);}
+/* Botones generales */
+.btn{border:none;padding:10px 10px;border-radius:10px;background:linear-gradient(90deg,var(--accent-2),var(--accent));color:#fff;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4); font-size: 0.9rem; transition: transform 0.1s;}
+.btn:active { transform: scale(0.98); }
 
-.mode-grid{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:12px;margin-top:12px;max-width:560px;}
+/* Botón Piano Libre estilo especial */
+.free-piano-btn {
+  background: var(--free-piano-bg); 
+  color: #fff; 
+  font-size: 1.1rem; 
+  padding: 15px 10px; 
+  border: 2px solid rgba(255,255,255,0.2);
+  width: 100%; 
+  margin-top: 0;
+  display: block;
+}
+.free-piano-btn:hover { opacity: 0.9; transform: scale(0.99); }
 
-/* SECTIONS ANIMATIONS */
-.helpCard, .historyCard, .gameCard, .dictationCard { display:none; animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.helpBtn{background:linear-gradient(90deg,var(--helpA),var(--helpB));color:#111;}
+.historyBtn{background:linear-gradient(90deg,var(--historyA),var(--historyB));color:#fff; border:1px solid rgba(255,255,255,0.1)}
 
-/* ERROR SHAKE ANIMATION */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+/* Grid de Modos - Modificado para el nuevo diseño */
+.mode-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 Columnas base */
+  gap:8px;
+  margin-bottom:8px;
+}
+.full-width-btn {
+  grid-column: span 3; /* Ocupa las 3 columnas */
 }
 
-/* LABELS & TEXT */
-.labelRow{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.labelBox{padding:10px 16px;border-radius:10px;background:var(--card);display:inline-flex;align-items:center;gap:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05);}
-.labelEs{border:2px solid var(--accent-2); color:var(--text); font-weight:900; font-size:1.1rem; min-width:80px; justify-content:center;}
-.labelEn{border:2px solid var(--accent); color:var(--text); font-weight:900; font-size:1.1rem; min-width:80px; justify-content:center;}
-.labelHint{color:var(--muted);font-weight:600;font-size:0.9rem; margin-top:4px; }
+/* Grid de Sonidos - 4 Botones en línea */
+.sound-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 6px; 
+  margin-top: 5px; 
+}
+.sound-btn { 
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); 
+  padding: 8px 4px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.75rem; text-align: center;
+}
+.sound-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+.sound-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px rgba(96,165,250,0.4); }
 
-/* GAME HEADER */
-.game-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); }
-.game-top h2 { margin:0; font-size:1.25rem; font-weight:800; color: var(--accent-2); }
-.backBtn { background: rgba(255,255,255,0.05); color:var(--text); border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:700; transition: var(--transition); }
-.backBtn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+/* Separador visual */
+.separator-line {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 15px 0;
+  width: 100%;
+}
+.sound-label {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-/* PIANO */
-.pianoArea{margin-top:16px}
-.piano { position:relative; height:200px; border-radius:16px; overflow:visible; background:linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3)); padding:10px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); border:1px solid rgba(0,0,0,0.3); }
+.helpCard, .historyCard{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);display:none;}
+
+.labelRow{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.labelBox{padding:6px 10px;border-radius:10px;background:var(--card);display:inline-flex;align-items:center;gap:6px; font-size: 0.9rem;}
+.labelEs{border:2px solid var(--accent-2); color:var(--text); font-weight:900}
+.labelEn{border:2px solid var(--accent); color:var(--text); font-weight:900}
+.labelHint{color:var(--muted);font-weight:700;font-size:0.9rem}
+
+.game-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.game-top h2 { margin:0; font-size:1.1rem; font-weight:900; }
+.backBtn { background: rgba(255,255,255,0.03); color:var(--text); border:1px solid rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:800; }
+.fullscreen-btn { background: rgba(255,255,255,0.03); color:var(--muted); border:1px solid rgba(255,255,255,0.04); padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:800; position: absolute; top: 12px; right: 12px; font-size: 1.2rem; line-height: 1; }
+
+.chordLabel{display:block;margin-bottom:4px; font-size: 0.95rem;}
+.hint{color:var(--muted);margin-top:4px;margin-bottom:8px; font-size: 0.9rem;}
+
+.pianoArea{margin-top:8px; width: 100%; padding: 0;}
+.piano { position:relative; height:155px; border-radius:12px; overflow:visible; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); padding:4px; box-shadow:0 6px 18px rgba(0,0,0,0.5); }
 .white-keys { display:flex; height:100%; user-select:none; }
-.key { position:relative; display:flex; align-items:flex-end; justify-content:center; font-size:12px; cursor:pointer; transition: background 0.1s; }
+.key { position:relative; display:flex; align-items:flex-end; justify-content:center; font-size:10px; cursor:pointer; transition: background 0.05s; }
+.key.pressed { filter: brightness(0.9); }
 .white {
   background:var(--whiteKey) !important;
   background-color:var(--whiteKey) !important;
@@ -72,9 +113,9 @@ main{max-width:980px;margin:18px auto;padding:16px;padding-bottom: 40px;}
   background-repeat: repeat !important;
   flex:1 1 0;
   height:100%;
-  border-radius:0 0 6px 6px;
-  border-left: 1px solid rgba(0,0,0,0.2);
-  box-shadow: inset 0 -4px 10px rgba(0,0,0,0.1);
+  border-radius:6px;
+  border-left: 1px solid rgba(0,0,0,0.28);
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,0.03);
   color:transparent !important;
   z-index:1;
   -webkit-text-fill-color: transparent !important;
@@ -83,78 +124,137 @@ main{max-width:980px;margin:18px auto;padding:16px;padding-bottom: 40px;}
   print-color-adjust: exact !important;
 }
 .white:first-child { border-left: none; }
-.black-keys { position:absolute; top:0; left:0; width:100%; height:62%; pointer-events:none; z-index:3; }
+.black-keys { position:absolute; top:0; left:0; width:100%; height:60%; pointer-events:none; z-index:3; }
 .black {
   position:absolute;
   height:100%;
   background:var(--blackKey) !important;
   background-color:var(--blackKey) !important;
-  border-radius:0 0 4px 4px;
-  box-shadow:2px 4px 6px rgba(0,0,0,0.6);
+  border-radius:0 0 10px 10px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.7);
   pointer-events:auto;
   color:transparent !important;
   z-index:4;
   width: calc(100% / 22);
-  border-bottom: 2px solid rgba(255,255,255,0.1);
+  forced-color-adjust: none !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
 }
 
-/* KEY STATES */
-.key.selected { background: var(--success) !important; color:#fff !important; box-shadow:0 4px 10px rgba(81,207,102,0.3) !important; transform: translateY(2px); }
-.key.error-key { background: var(--danger) !important; color: #fff !important; box-shadow: 0 4px 10px rgba(250,82,82,0.3) !important; /* SHAKE ANIMATION APPLIED HERE */ animation: shake 0.4s ease-in-out; }
-.white.correct, .black.correct { background:var(--success) !important; color:#fff; box-shadow:0 4px 10px rgba(81,207,102,0.3); transform: translateY(2px); border-bottom: 4px solid var(--success); }
+.help-piano .black { width: 9% !important; }
 
-/* DICTATION STATE */
-.dictation .key.dict-active { background: var(--success) !important; color:#fff !important; box-shadow:0 4px 10px rgba(81,207,102,0.3) !important; transform: translateY(2px); border-bottom: 4px solid var(--success); }
+.key.selected { background: var(--success) !important; color:#fff !important; box-shadow:0 6px 18px rgba(81,207,102,0.22) !important; }
+.key.error-key { background: var(--danger) !important; color: #fff !important; box-shadow: 0 6px 18px rgba(250,82,82,0.22) !important; }
+.white.correct, .black.correct { background:var(--success); color:#fff; box-shadow:0 6px 18px rgba(81,207,102,0.2); }
+
+.help-piano-container { margin-top: 15px; position: relative; }
+.help-step-text { text-align: center; font-weight: 700; color: var(--accent); margin-bottom: 5px; min-height: 1.2em; }
+.key.anim-active { background: rgba(96, 165, 250, 0.4) !important; border: 2px solid var(--accent); }
+.key.anim-green { background: var(--success) !important; color: #fff !important; }
+.key-number {
+  position: absolute; bottom: 20%; width: 100%; text-align: center;
+  font-weight: 900; color: var(--text); font-size: 0.9rem; pointer-events: none; text-shadow: 0 1px 2px black;
+}
+
+.dictation .key.dict-active { background: var(--success) !important; color:#fff !important; box-shadow:0 6px 18px rgba(81,207,102,0.22) !important; }
 .dictation .key { cursor: default; pointer-events: none; }
 
-/* CHIPS */
-.dict-list { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-.dict-chip { padding:10px 14px; background:var(--card); border-radius:8px; border:1px solid rgba(255,255,255,0.1); color:var(--text); font-weight:600; cursor:pointer; user-select:none; transition: var(--transition); }
-.dict-chip:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
-.dict-chip.selected { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3); }
-.dict-chip.correct { background: rgba(81,207,102,0.15); border-color: rgba(81,207,102,0.4); color:var(--success); }
-.dict-chip.wrong { background: rgba(250,82,82,0.1); border-color: rgba(250,82,82,0.4); color:var(--danger); }
+.dict-list { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.dict-chip { padding:6px 8px; background:var(--card); border-radius:8px; border:1px solid rgba(255,255,255,0.02); color:var(--text); font-weight:700; cursor:pointer; user-select:none; font-size: 0.85rem;}
+.dict-chip.selected { outline: 2px solid var(--accent); transform: translateY(-2px); }
+.dict-chip.correct { background: rgba(81,207,102,0.12); border-color: rgba(81,207,102,0.25); color:var(--success); }
+.dict-chip.wrong { background: rgba(250,82,82,0.06); border-color: rgba(250,82,82,0.18); color:var(--danger); }
 
-/* ACTIONS BAR */
-.actions { display:flex; gap:10px; align-items:center; margin-top:20px; flex-wrap:wrap; padding-top:16px; border-top:1px solid rgba(255,255,255,0.05); }
-.smallBtn { background: rgba(255,255,255,0.05); color:var(--text); border:1px solid rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:700; transition: var(--transition); }
-.smallBtn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
-.smallBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.feedback { margin-left:12px; font-weight:700; font-size:1rem; min-width:150px; text-align: right; }
+.actions { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap }
+.smallBtn { background: rgba(255,255,255,0.03); color:var(--text); border:1px solid rgba(255,255,255,0.04); padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700; font-size: 0.85rem;}
+.feedback { margin-left:8px; font-weight:800; color:var(--muted); font-size: 0.9rem; }
 
-/* HELP LIST */
-.helpList { color:var(--text); margin-top:12px; line-height:1.7; }
-.helpList ul { padding-left: 20px; margin-top: 8px; }
-.helpList b { color:var(--accent); }
-
-/* HISTORY TABLE */
-.stats-summary { display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:24px; }
-.stat-card { background: rgba(255,255,255,0.03); padding:20px; border-radius:12px; text-align:center; border:1px solid rgba(255,255,255,0.05); }
-.stat-big { display:block; font-size:2.5rem; font-weight:900; color:var(--accent-2); margin-bottom:5px; line-height:1; }
-.stat-label { font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; }
-
-.history-table { width: 100%; border-collapse: collapse; margin-top:16px; font-size:0.9rem; }
-.history-table th { text-align:left; padding:12px 10px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--muted); font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; }
-.history-table td { padding:12px 10px; border-bottom:1px solid rgba(255,255,255,0.05); font-weight:500; }
-.history-table tr:hover td { background: rgba(255,255,255,0.03); }
-.history-table tr:last-child td { border-bottom:none; }
-.stat-error { color: var(--danger); font-weight:bold; }
-.stat-success { color: var(--success); font-weight:bold; }
-.stat-percent { font-size:0.85rem; font-weight:700; padding: 2px 8px; border-radius:4px; background: rgba(255,255,255,0.05); }
-.percent-high { color: var(--success); background: rgba(81,207,102,0.1); }
-.percent-low { color: var(--danger); background: rgba(250,82,82,0.1); }
-
-/* RESPONSIVE */
-@media (max-width:720px){
-  .piano{height:160px}
-  .stats-summary { grid-template-columns: 1fr; gap: 10px; }
-  .stat-big { font-size: 2rem; }
-  .chordLabel{font-size:1.1rem}
-  .mode-grid{grid-template-columns:1fr}
-  .history-table th, .history-table td { font-size: 0.8rem; padding: 8px 5px; }
+.contextual-help {
+  margin-top: 5px; 
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px;
+  display: none;
+  font-size: 0.8rem;
+}
+.contextual-help h3 { margin: 0 0 8px 0; font-size: 0.9rem; color: var(--accent); }
+.contextual-help ul { margin: 0; padding-left: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.contextual-help li { color: var(--accent); } 
+.trivia-text {
+  margin-top: 10px;
+  font-style: italic;
+  color: var(--accent); 
+  text-align: center;
+  border-top: 1px dashed rgba(255,255,255,0.1);
+  padding-top: 8px;
+  font-size: 0.75rem;
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* FORCED COLORS */
+.helpList { color:var(--text); margin-top:8px; line-height:1.5; font-size: 0.9rem; }
+.helpList b { color:var(--accent); }
+.helpList ul { padding-left: 20px; margin: 4px 0; }
+
+.game-stats-container { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap:10px; 
+  margin-bottom:15px; 
+}
+.stat-box { background: var(--stat-card-bg); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; align-items: center;}
+.stat-value { font-size: 1.5rem; font-weight: 900; color: var(--accent); display: block; margin-bottom: 2px; text-shadow: 0 0 10px rgba(96,165,250,0.4); }
+.stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value.wrong { color: var(--danger); text-shadow: none; }
+.stat-value.success { color: var(--success); }
+.stat-detail { display: flex; gap: 8px; font-size: 0.75rem; font-weight: 700; margin-top: 4px; }
+.stat-detail span { display: flex; align-items: center; gap: 2px; }
+.text-green { color: var(--success); }
+.text-red { color: var(--danger); }
+.stat-box.wide { grid-column: span 4; }
+
+.history-table { width: 100%; border-collapse: collapse; margin-top:8px; font-size:0.85rem; }
+.history-table th { text-align:left; padding:6px; border-bottom:2px solid rgba(255,255,255,0.1); color:var(--muted); }
+.history-table td { padding:6px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.history-table tr:last-child td { border-bottom:none; }
+.history-table tfoot td { border-top: 2px solid var(--accent); background: rgba(96, 165, 250, 0.08); font-weight: 900; }
+.stat-error { color: var(--danger); font-weight:bold; }
+.stat-success { color: var(--success); font-weight:bold; }
+.stat-percent { font-size:0.75rem; color:var(--muted); }
+
+@media screen and (orientation: portrait) {
+  main { display: none !important; }
+  #rotate-screen { display: flex !important; }
+}
+@media screen and (orientation: landscape) {
+  main { display: flex !important; }
+  #rotate-screen { display: none !important; }
+  
+  .mode-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .btn { font-size: 0.8rem; padding: 8px; }
+  .sound-grid { grid-template-columns: repeat(4, 1fr); }
+  .contextual-help { display: block !important; }
+  .dict-chip { font-size: 0.75rem; padding: 4px 6px; }
+  .dict-list { gap: 4px; }
+  
+  @media (max-height: 400px) {
+    .contextual-help ul { grid-template-columns: 1fr !important; }
+    .game-stats-container { grid-template-columns: repeat(2, 1fr) !important; gap: 5px !important; padding: 0 5px;}
+    .stat-box.wide { grid-column: span 2 !important; } 
+    .stat-box { padding: 5px; }
+    .stat-value { font-size: 1.1rem; }
+    .stat-label { font-size: 0.6rem; }
+    .piano { height: 130px; }
+    .menu-panel { padding: 8px; }
+    .mode-grid { gap: 4px; }
+    .contextual-help { margin-top: 2px; padding: 5px; }
+    .free-piano-btn { padding: 10px; font-size: 1rem; }
+  }
+}
+
 @supports (forced-color-adjust: none) {
   .white { background-color: #ffffff !important; color: transparent !important; forced-color-adjust: none !important; }
   .black { background-color: #111216 !important; color: transparent !important; forced-color-adjust: none !important; }
@@ -167,165 +267,235 @@ main{max-width:980px;margin:18px auto;padding:16px;padding-bottom: 40px;}
   .white { background-color: var(--whiteKey) !important; color: transparent !important; forced-color-adjust: none !important; }
   .black { background-color: var(--blackKey) !important; color: transparent !important; forced-color-adjust: none !important; }
 }
+
+#rotate-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg);
+  z-index: 10000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  text-align: center;
+}
+.rotate-icon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 20px;
+  fill: var(--accent);
+  animation: rotate-anim 2s infinite ease-in-out;
+}
+@keyframes rotate-anim {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-90deg); }
+  50% { transform: rotate(-90deg); }
+  75% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+.rotate-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-top: 10px;
+}
+.rotate-subtext {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-top: 5px;
+}
   </style>
 </head>
 <body>
+  
+  <div id="rotate-screen">
+    <svg class="rotate-icon" viewBox="0 0 24 24">
+      <path d="M16.48 2.52c3.27 1.55 5.61 4.72 5.97 8.48h1.5C23.44 4.84 18.29 0 12 0l-.66.03 3.81 3.81 1.33-1.32zm-6.25-.77c-.59-.59-1.54-.59-2.12 0L1.75 8.11c-.59.59-.59 1.54 0 2.12l12.02 12.02c.59.59 1.54.59 2.12 0l6.36-6.36c.59-.59.59-1.54 0-2.12L10.23 1.75zm4.6 19.44L2.81 9.17l6.36-6.36 12.02 12.02-6.36 6.36zm-7.31.29C4.25 19.94 1.91 16.76 1.55 13H.05C.56 19.16 5.71 24 12 24l.66-.03-3.81-3.81-1.33 1.32z"/>
+    </svg>
+    <div class="rotate-text">Por favor, gira tu dispositivo</div>
+    <div class="rotate-subtext">El juego está optimizado para horizontal</div>
+  </div>
+
   <main>
-    <!-- MENU INICIAL -->
     <section id="menuPanel" class="menu-panel">
+      <button id="fsBtnMenu" class="fullscreen-btn" title="Pantalla Completa">⛶</button>
       <div class="menu-title-main">Construcción de acordes</div>
-      <div class="menu-subtitle">Sistema de entrenamiento musical</div>
+      <div class="menu-subtitle">Ejercicios</div>
 
       <div class="mode-grid">
+        <!-- Renglón 1: 3 botones -->
         <button class="btn" id="modeMajorMinorBtn">Mayores y menores</button>
         <button class="btn" id="modeSeventhsBtn">Acordes con 7mas</button>
         <button class="btn" id="modeAlteredBtn">Disminuido / Aumentado / sus</button>
-        <button class="btn" id="modeInversionBtn">Acordes con inversiones</button>
-        <button class="btn" id="modeDictationBtn" style="grid-column: span 2;">Dictados</button>
-        <button class="helpBtn" id="helpBtn" style="grid-column: span 2;">Ayuda</button>
-        <button class="historyBtn" id="historyBtn" style="grid-column: span 2;">Historial de Aciertos y Errores</button>
+        
+        <!-- Renglón 2: 1 botón ancho -->
+        <button class="btn full-width-btn" id="modeAllFundamentalBtn">Todos los acordes</button>
+        
+        <!-- Renglón 3: 1 botón ancho -->
+        <button class="btn full-width-btn" id="modeDictationBtn">Dictados</button>
+        
+        <!-- Renglón 4: 1 botón ancho -->
+        <button class="btn helpBtn full-width-btn" id="helpBtn">Ayuda</button>
+        
+        <!-- Renglón 5: 1 botón ancho -->
+        <button class="btn historyBtn full-width-btn" id="historyBtn">Estadísticas</button>
       </div>
+
+      <!-- Separación -->
+      <div class="separator-line"></div>
+
+      <!-- Renglón 6: Estilos de Piano (4 botones) -->
+      <div class="sound-label">Estilo de Piano</div>
+      <div class="sound-grid" id="soundButtons">
+        <button class="sound-btn active" data-mode="0">Clásico</button>
+        <button class="sound-btn" data-mode="1">Organo</button> <!-- Antes Synth 80s -->
+        <button class="sound-btn" data-mode="3">Espacial</button> <!-- Antes Space -->
+        <button class="sound-btn" data-mode="random">Mezcla</button>
+      </div>
+
+      <!-- Separación -->
+      <div class="separator-line"></div>
+      
+      <!-- Renglón 7: Piano Libre -->
+      <button class="btn free-piano-btn" id="modeFreePianoBtn">🎹 Piano Libre</button>
     </section>
 
-    <!-- HELP -->
-    <section id="helpCard" class="card">
+    <section id="helpCard" class="helpCard" style="display:none; margin-top:16px;">
       <div class="game-top">
         <h2>Ayuda</h2>
         <button id="helpBackBtn" class="backBtn">Atrás</button>
       </div>
-
+      
       <div class="helpList" id="helpList">
-        <p>Construccción de los acordes, expresada como distancias en semitonos desde la raíz:</p>
-
+        <p>Construcción de acordes por semitonos desde la raíz:</p>
         <p><b>Triadas</b></p>
         <ul>
-          <li>Mayor: 4 + 3 Semitonos</li>
-          <li>Menor: 3 + 4 Semitonos</li>
-          <li>Disminuido (dim): 3 + 3 Semitonos</li>
-          <li>Aumentado (aug): 4 + 4 Semitonos</li>
-          <li>Sus4: 5 + 2 Semitonos</li>
-          <li>Sus2: 2 + 5 Semitonos</li>
+          <li>Mayor: 4 + 3</li>
+          <li>Menor: 3 + 4</li>
+          <li>Disminuido (dim):3 + 3</li>
+          <li>Aumentado (aug): 4 + 4</li>
+          <li>Sus4: 5 + 2</li>
+          <li>Sus2: 2 + 5</li>
         </ul>
-
         <p><b>Séptimas</b></p>
         <ul>
-          <li>Mayor7 (maj7): 4 + 3 + 4 Semitonos</li>
-          <li>Dominante7 (7): 4 + 3 + 3 Semitonos</li>
-          <li>Menor7 (m7): 3 + 4 + 3 Semitonos</li>
+          <li>Mayor7 (maj7): 4 + 3 + 4</li>
+          <li>Dominante7 (7): 4 + 3 + 3</li>
+          <li>Menor7 (m7): 3 + 4 + 3</li>
         </ul>
+        <p style="margin-top:8px;color:var(--muted)">El piano de abajo muestra cómo armar un acorde <b>Do Mayor 7</b> (4+3+4).</p>
+      </div>
 
-        <p><b>Inversiones</b></p>
-        <ul>
-          <li>1ª inversión: la <i>3ª</i> del acorde pasa a ser el bajo.</li>
-          <li>2ª inversión: la <i>5ª</i> del acorde pasa a ser el bajo.</li>
-          <li>En séptimas hay también 3ª inversión: el <i>7</i> como bajo.</li>
-        </ul>
+      <div class="help-piano-container">
+        <div id="helpAnimText" class="help-step-text">Haz clic en "Reproducir Ejemplo"</div>
+        <button class="smallBtn" id="playHelpAnimBtn" style="display:block; margin: 5px auto;">Reproducir Ejemplo (Do Maj7)</button>
+        <div class="piano help-piano" id="helpPiano">
+          <div class="white-keys" id="helpWhiteKeys"></div>
+          <div class="black-keys" id="helpBlackKeys"></div>
+        </div>
       </div>
     </section>
 
-    <!-- HISTORY -->
-    <section id="historyCard" class="card">
+    <section id="historyCard" class="historyCard" style="display:none; margin-top:16px;">
       <div class="game-top">
-        <h2>Historial y Estadísticas</h2>
+        <h2>Estadísticas de Sesión</h2>
         <button id="historyBackBtn" class="backBtn">Atrás</button>
       </div>
       
-      <div class="stats-summary">
-        <div class="stat-card">
-          <span class="stat-big" id="totalCorrect">0</span>
-          <span class="stat-label">Aciertos Totales</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-big" id="totalAttempts">0</span>
-          <span class="stat-label">Intentos Totales</span>
-        </div>
-      </div>
+      <div id="gameStatsPanel" class="game-stats-container"></div>
 
-      <div style="margin-bottom:12px;">
-        <h3 style="margin:0 0 10px 0; font-size:1rem; color:var(--text);">Detalle por Acorde</h3>
-        <p style="font-size:0.9rem; color:var(--muted); margin:0;">Se priorizan los acordes con errores para repasar.</p>
+      <div style="color:var(--muted); font-size:0.8rem; margin-bottom:10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:8px;">
+        Detalle de acordes practicados.
       </div>
-
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Acorde</th>
-            <th>Aciertos</th>
-            <th>Errores</th>
-            <th>Total</th>
-            <th>Éxito</th>
-          </tr>
-        </thead>
-        <tbody id="historyTableBody">
-          <!-- JS -->
-        </tbody>
-      </table>
-      <div id="noHistoryMsg" style="text-align:center; padding:30px; color:var(--muted); display:none;">
-        Aún no has practicado suficientes acordes.
+      <div style="overflow-x: auto;">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Acorde</th>
+              <th>Aciertos</th>
+              <th>Errores</th>
+              <th>Total</th>
+              <th>Éxito</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+          <tfoot>
+            <tr>
+              <td style="text-align:right; padding-right:12px;">TOTALES</td>
+              <td id="totalCorrectVal" class="stat-success">0</td>
+              <td id="totalWrongVal" class="stat-error">0</td>
+              <td id="totalAttemptsVal">0</td>
+              <td>-</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div id="noHistoryMsg" style="text-align:center; padding:20px; color:var(--muted);">
+        Aún no has practicado.
       </div>
     </section>
 
-    <!-- JUEGO -->
-    <section id="gameCard" class="card">
-      <div class="game-top">
-        <h2 id="modeTitle">Modo</h2>
-        <button id="backBtn" class="backBtn">Atrás</button>
-      </div>
-
-      <div>
-        <div id="chordLabel" class="chordLabel" aria-live="polite"></div>
-        <div id="chordHint" class="hint">Selecciona las notas que forman el acorde.</div>
-      </div>
-
-      <div class="pianoArea">
-        <div class="piano" id="piano">
-          <div class="white-keys" id="whiteKeys"></div>
-          <div class="black-keys" id="blackKeys" aria-hidden="false"></div>
+    <section id="gameCard" class="gameCard" style="display:none; margin-top:16px;">
+      <div class="menu-panel" style="padding: 12px;">
+        <div class="game-top">
+          <h2 id="modeTitle">Modo</h2>
+          <button id="backBtn" class="backBtn">Atrás</button>
         </div>
-      </div>
 
-      <div class="actions">
-        <button class="smallBtn" id="playChordBtn">Reproducir acorde</button>
-        <button class="smallBtn" id="checkBtn" disabled>Comprobar</button>
-        <button class="smallBtn" id="clearBtn">Borrar selección</button>
-        <div class="feedback" id="feedbackMsg"></div>
+        <div id="gameGameElements">
+            <div>
+              <div id="chordLabel" class="chordLabel" aria-live="polite"></div>
+              <div id="chordHint" class="hint">Selecciona las notas que forman el acorde.</div>
+            </div>
+
+            <div class="actions" style="margin-bottom:8px;">
+              <button class="smallBtn" id="playChordBtn">Reproducir</button>
+              <button class="smallBtn" id="clearBtn">Borrar</button>
+              <div class="feedback" id="feedbackMsg"></div>
+            </div>
+        </div>
+
+        <div class="pianoArea">
+          <div class="piano" id="piano">
+            <div class="white-keys" id="whiteKeys"></div>
+            <div class="black-keys" id="blackKeys" aria-hidden="false"></div>
+          </div>
+        </div>
+
+        <div id="contextualHelp" class="contextual-help"></div>
       </div>
     </section>
 
-    <!-- DICTATION -->
-    <section id="dictationCard" class="card">
+    <section id="dictationCard" class="menu-panel" style="display:none; margin-top:16px;">
       <div class="game-top">
         <h2>Dictados</h2>
         <button id="dictBackBtn" class="backBtn">Atrás</button>
       </div>
-
-      <div id="dictationMenu">
-        <div class="labelHint" style="margin-bottom:12px;">Elige dificultad:</div>
+      <div id="dictationMenu" style="margin-bottom:12px;">
+        <div class="labelHint" style="margin-bottom:8px;">Elige dificultad:</div>
         <div class="mode-grid" style="max-width:640px;">
-          <button class="btn" id="dictEasyBtn">Fácil: mayores y menores</button>
-          <button class="btn" id="dictMidBtn">Intermedio: todos (posición fundamental)</button>
-          <button class="btn" id="dictHardBtn">Difícil: todos (+ inversiones)</button>
+          <button class="btn" id="dictEasyBtn">Mayores y menores</button>
+          <button class="btn" id="dictMidBtn">Todos los acordes</button>
+          <!-- Hard Mode (Inversions) REMOVED as per request -->
         </div>
       </div>
-
-      <div id="dictationGame" style="display:none;">
+      <div id="dictationGame" style="display:none; margin-top:12px;">
         <div id="dictPianoArea" class="pianoArea">
           <div class="piano dictation" id="dictPiano" aria-hidden="false">
             <div class="white-keys" id="dictWhiteKeys"></div>
             <div class="black-keys" id="dictBlackKeys"></div>
           </div>
         </div>
-
-        <div style="margin-top:16px;">
-          <div class="labelHint">Notas disponibles (tónica):</div>
+        <div style="margin-top:12px;">
+          <div class="labelHint">Notas (tónica):</div>
           <div id="dictNotesList" class="dict-list" aria-live="polite"></div>
-
-          <div class="labelHint" style="margin-top:12px;">Modos de acordes:</div>
+          <div class="labelHint" style="margin-top:8px;">Modos:</div>
           <div id="dictModesList" class="dict-list"></div>
-
-          <div class="actions" style="margin-top:20px;">
+          <div class="actions" style="margin-top:12px;">
             <button class="smallBtn" id="dictPlayBtn" disabled>Reproducir</button>
-            <button class="smallBtn" id="dictCheckBtn" disabled>Comprobar</button>
             <button class="smallBtn" id="dictNextBtn" disabled>Siguiente</button>
             <div class="feedback" id="dictFeedback"></div>
           </div>
@@ -336,7 +506,7 @@ main{max-width:980px;margin:18px auto;padding:16px;padding-bottom: 40px;}
   </main>
 
   <script>
-/* ---------- UTILITIES ---------- */
+/* ---------- util ---------- */
 function convertAccidentalsForDisplay(s){
   if(!s || typeof s !== 'string') return s;
   s = s.replace(/##/g, '♯♯').replace(/bb/g, '♭♭');
@@ -345,10 +515,9 @@ function convertAccidentalsForDisplay(s){
 }
 const ALL_NOTES_ORDER = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
 const ROOTS = [
-  {name:"Do", pc:"C"}, {name:"Do#", pc:"C#"}, {name:"Re", pc:"D"},
-  {name:"Mib", pc:"D#"}, {name:"Mi", pc:"E"}, {name:"Fa", pc:"F"},
-  {name:"Fa#", pc:"F#"}, {name:"Sol", pc:"G"}, {name:"Lab", pc:"G#"},
-  {name:"La", pc:"A"}, {name:"Sib", pc:"A#"}, {name:"Si", pc:"B"}
+  {name:"Do", pc:"C"},{name:"Do#", pc:"C#"},{name:"Re", pc:"D"},{name:"Mib", pc:"D#"},
+  {name:"Mi", pc:"E"},{name:"Fa", pc:"F"},{name:"Fa#", pc:"F#"},{name:"Sol", pc:"G"},
+  {name:"Lab", pc:"G#"},{name:"La", pc:"A"},{name:"Sib", pc:"A#"},{name:"Si", pc:"B"}
 ];
 function pcUp(pc, semitones){ const i = ALL_NOTES_ORDER.indexOf(pc); return ALL_NOTES_ORDER[(i + semitones) % 12]; }
 function spanishNameFromPC(pc){
@@ -376,42 +545,26 @@ function rootLetterFromSpanish(rootSpanishName){
   return null;
 }
 const NATURAL_PC_INDEX = { 'C':0, 'D':2, 'E':4, 'F':5, 'G':7, 'A':9, 'B':11 };
-
 function spellPcRelativeToRoot(rootPc, rootSpanishName, targetPc){
-  rootPc = normalizePC(rootPc);
-  targetPc = normalizePC(targetPc);
+  rootPc = normalizePC(rootPc); targetPc = normalizePC(targetPc);
   const idxRoot = ALL_NOTES_ORDER.indexOf(rootPc);
   const idxTarget = ALL_NOTES_ORDER.indexOf(targetPc);
   if(idxRoot === -1 || idxTarget === -1) return { es: convertAccidentalsForDisplay(spanishNameFromPC(targetPc)), en: targetPc };
   const semisFromRoot = (idxTarget - idxRoot + 12) % 12;
   const degree = SEMITONE_TO_DEGREE.hasOwnProperty(semisFromRoot) ? SEMITONE_TO_DEGREE[semisFromRoot] : 1;
-  let rootLetter = rootLetterFromSpanish(rootSpanishName);
-  if(!rootLetter) rootLetter = rootPc[0];
-  const rootLetterIndex = DIATONIC_LETTERS.indexOf(rootLetter);
-  const desiredLetterIndex = (rootLetterIndex + (degree - 1)) % DIATONIC_LETTERS.length;
+  let rootLetter = rootLetterFromSpanish(rootSpanishName) || rootPc[0];
+  const desiredLetterIndex = (DIATONIC_LETTERS.indexOf(rootLetter) + (degree - 1)) % DIATONIC_LETTERS.length;
   const desiredLetter = DIATONIC_LETTERS[desiredLetterIndex];
-  const idxNatural = NATURAL_PC_INDEX[desiredLetter];
-  let diff = (idxTarget - idxNatural + 12) % 12;
-  if(diff > 6) diff = diff - 12;
-  let accidental = '';
-  if(diff === 0) accidental = '';
-  else if(diff === 1) accidental = '#'; else if(diff === -1) accidental = 'b';
-  else if(diff === 2) accidental = '##'; else if(diff === -2) accidental = 'bb';
-  else accidental = diff > 0 ? '#'.repeat(diff) : 'b'.repeat(-diff);
+  const diff = (ALL_NOTES_ORDER.indexOf(targetPc) - NATURAL_PC_INDEX[desiredLetter] + 12) % 12;
+  let accidental = diff === 0 ? '' : diff === 1 ? '#' : diff === -1 ? 'b' : diff === 2 ? '##' : diff === -2 ? 'bb' : diff > 0 ? '#'.repeat(diff) : 'b'.repeat(-diff);
   let esBase = SPANISH_BASE[desiredLetter] || desiredLetter;
-  let es = esBase;
-  if(accidental === '#') es = esBase + '♯'; else if(accidental === 'b') es = esBase + '♭';
-  else if(accidental === '##') es = esBase + '♯♯'; else if(accidental === 'bb') es = esBase + '♭♭';
-  let en = desiredLetter;
-  if(accidental === '#') en = desiredLetter + '♯'; else if(accidental === 'b') en = desiredLetter + '♭';
-  else if(accidental === '##') en = desiredLetter + '♯♯'; else if(accidental === 'bb') en = desiredLetter + '♭♭';
+  let es = esBase + (accidental === '#' ? '♯' : accidental === 'b' ? '♭' : accidental === '##' ? '♯♯' : accidental === 'bb' ? '♭♭' : '');
+  let en = desiredLetter + (accidental === '#' ? '♯' : accidental === 'b' ? '♭' : accidental === '##' ? '♯♯' : accidental === 'bb' ? '♭♭' : '');
   return { es, en };
 }
 
-/* ---------- AUDIO ENGINE ---------- */
-const START_OCTAVE = 4;
-const OCTAVES = 2;
-const pianoNotes = [];
+/* ---------- audio ---------- */
+const START_OCTAVE = 4; const OCTAVES = 2; const pianoNotes = [];
 for(let o=START_OCTAVE; o<START_OCTAVE+OCTAVES; o++) for(const n of ALL_NOTES_ORDER) pianoNotes.push(n + o);
 function pitchClass(note){ return note.replace(/[0-9]/g,""); }
 let audioCtx = null;
@@ -420,86 +573,159 @@ const NOTE_TO_MIDI = {"C":0,"C#":1,"D":2,"D#":3,"E":4,"F":5,"F#":6,"G":7,"G#":8,
 function noteToMidi(note){ const pc=pitchClass(note); const octave=parseInt(note.replace(pc,''),10); return 12*(octave+1)+NOTE_TO_MIDI[pc]; }
 function midiToFreq(m){ return 440 * Math.pow(2,(m-69)/12); }
 
-function playNote(noteName, when=0, dur=1.2){
+const SOUND_PRESETS = {
+  0: { baseType: 'triangle', harmType: 'sine', attack: 0.01, decay: 1.2, harmGain: 0.15 }, // Clásico
+  1: { baseType: 'sawtooth', harmType: 'square', attack: 0.01, decay: 0.8, harmGain: 0.2 }, // Organo (Synth 80s modified slightly)
+  2: { baseType: 'triangle', harmType: 'triangle', attack: 0.005, decay: 0.6, harmGain: 0.4 }, // (Unused in UI but kept)
+  3: { baseType: 'sine', harmType: null, attack: 0.15, decay: 2.5, harmGain: 0 } // Espacial (Space)
+};
+
+let selectedSoundMode = '0'; 
+let currentRandomPresetIndex = 0;
+
+function getCurrentPresetIndex(){
+  return selectedSoundMode === 'random' ? currentRandomPresetIndex : parseInt(selectedSoundMode);
+}
+
+function updateSoundUI(mode){
+  document.querySelectorAll('.sound-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode == mode);
+  });
+  selectedSoundMode = mode;
+  if(mode !== 'random') currentRandomPresetIndex = Math.floor(Math.random() * 4);
+}
+
+function playNote(noteName, when=0, dur){
   ensureAudio();
   const freq = midiToFreq(noteToMidi(noteName));
   const t = audioCtx.currentTime + when;
+  const style = SOUND_PRESETS[getCurrentPresetIndex()] || SOUND_PRESETS[0];
+  
   const osc = audioCtx.createOscillator();
-  osc.type = 'triangle'; osc.frequency.value = freq;
+  osc.type = style.baseType;
+  osc.frequency.value = freq;
   const g = audioCtx.createGain();
-  const osc2 = audioCtx.createOscillator();
-  osc2.type = 'sine'; osc2.frequency.value = freq * 2;
-  const g2 = audioCtx.createGain(); g2.gain.value = 0.15;
-  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.5, t + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  g2.gain.setValueAtTime(0, t); g2.gain.linearRampToValueAtTime(0.15, t + 0.01);
-  g2.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  osc.connect(g); osc2.connect(g2); g.connect(audioCtx.destination); g2.connect(audioCtx.destination);
-  osc.start(t); osc.stop(t + dur + 0.1); osc2.start(t); osc2.stop(t + dur + 0.1);
+  
+  if(style.harmType){
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = style.harmType;
+    osc2.frequency.value = freq * 2;
+    const g2 = audioCtx.createGain();
+    g2.gain.setValueAtTime(0, t);
+    g2.gain.linearRampToValueAtTime(style.harmGain, t + 0.02);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + style.decay);
+    osc2.connect(g2); g2.connect(audioCtx.destination);
+    osc2.start(t); osc2.stop(t + style.decay + 0.1);
+  }
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.5, t + style.attack);
+  g.gain.exponentialRampToValueAtTime(0.001, t + style.decay);
+  osc.connect(g); g.connect(audioCtx.destination);
+  osc.start(t); osc.stop(t + style.decay + 0.1);
 }
+
 function playChordSound(notes){ notes.forEach((n,i)=> playNote(n, i*0.02, 1.5)); }
 
-/* MEJORADO: SONIDO DE ERROR MÁS FUERTE (ZUMBIDO) */
 function playErrorSound(){ 
-  ensureAudio(); 
-  const now=audioCtx.currentTime; 
-  const g=audioCtx.createGain(); 
-  g.gain.setValueAtTime(0.25, now); // Ligeramente más alto
-  g.gain.exponentialRampToValueAtTime(0.001, now + 0.35); // Ligeramente más largo
+  ensureAudio(); const now=audioCtx.currentTime; 
+  const g=audioCtx.createGain(); g.gain.setValueAtTime(0.2, now);
+  g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
   g.connect(audioCtx.destination); 
-  const o=audioCtx.createOscillator(); 
-  o.type = 'square'; // CAMBIO: Sawtooth -> Square (más "metálico" y molesto)
+  const o=audioCtx.createOscillator(); o.type = 'sawtooth';
   o.frequency.setValueAtTime(150, now); 
   o.frequency.linearRampToValueAtTime(100, now+0.2);
-  o.connect(g); 
-  o.start(now); 
-  o.stop(now+0.35); 
+  o.connect(g); o.start(now); o.stop(now+0.3); 
 }
 
-/* ---------- DOM REFS ---------- */
+/* ---------- ERROR PHRASES ---------- */
+const errorPhrases = [
+  "Algo está mal...", "Proba de nuevo...", "Conta bien...", "Mhhh...", "No...", 
+  "Prestá atención...", "Eso no es...", "Casi, pero no..."
+];
+function getRandomError(){
+  return errorPhrases[Math.floor(Math.random() * errorPhrases.length)];
+}
+
+/* ---------- TRIVIA ---------- */
+const triviaFacts = [
+  "El piano estándar tiene 88 teclas (52 blancas y 36 negras).",
+  "Los pianistas más rápidos pueden tocar más de 14 notas por segundo.",
+  "El nombre 'Piano' significa 'Suave' en italiano.",
+  "Presionar una tecla activa un martillo que golpea una cuerda para hacer el sonido.",
+  "Las cuerdas de piano están hechas de acero.",
+  "Beethoven y Mozart escribieron muchas canciones famosas para piano.",
+  "El piano puede sonar muy suave o muy fuerte dependiendo de cómo presiones las teclas.",
+  "Los primeros pianos tenían las teclas sostenidas blancas y las naturales negras.",
+  "Las teclas antiguas de piano se cubrían con marfil, ahora se hacen de plástico para proteger a los animales.",
+  "A los pianos no les gusta el calor excesivo ni el agua.",
+  "Si cambia mucha la temperatura, el piano necesita afinarse de nuevo.",
+  "El piano más grande del mundo mide casi 3 metros de ancho.",
+  "El piano fue inventado en Italia en 1700.",
+  "Se tarda un año en construir un piano artesanal.",
+  "Al tocar, un pequeño martillo golpea una cuerda para vibrar y hacer sonido.",
+  "El piano es conocido como el instrumento Madre.",
+  "Un piano grande tiene aproximadamente 220 cuerdas que vibran al tocar.",
+  "La madera del piano suele ser de abeto o arce para proyectar bien el sonido.",
+  "Un piano es como una máquina compleja con 10.000 piezas que trabajan juntas.",
+  "El piano tiene pedales, con los cuales se cambia la expresividad del sonido."
+];
+let correctStreak = 0;
+
+/* ---------- DOM refs ---------- */
+const modeMajorMinorBtn = document.getElementById('modeMajorMinorBtn');
+const modeSeventhsBtn = document.getElementById('modeSeventhsBtn');
+const modeAlteredBtn = document.getElementById('modeAlteredBtn');
+const modeInversionBtn = document.getElementById('modeInversionBtn');
+const modeAllFundamentalBtn = document.getElementById('modeAllFundamentalBtn');
+const helpBtn = document.getElementById('helpBtn');
+const historyBtn = document.getElementById('historyBtn');
+const modeDictationBtn = document.getElementById('modeDictationBtn');
+const modeFreePianoBtn = document.getElementById('modeFreePianoBtn');
+
 const menuPanel = document.getElementById('menuPanel');
 const gameCard = document.getElementById('gameCard');
 const helpCard = document.getElementById('helpCard');
 const historyCard = document.getElementById('historyCard');
-const dictationCard = document.getElementById('dictationCard');
 const backBtn = document.getElementById('backBtn');
 const helpBackBtn = document.getElementById('helpBackBtn');
 const historyBackBtn = document.getElementById('historyBackBtn');
 const modeTitle = document.getElementById('modeTitle');
 const chordLabel = document.getElementById('chordLabel');
 const chordHint = document.getElementById('chordHint');
-const feedbackMsg = document.getElementById('feedbackMsg');
+const whiteKeys = document.getElementById('whiteKeys');
+const blackKeys = document.getElementById('blackKeys');
 const playChordBtn = document.getElementById('playChordBtn');
-const checkBtn = document.getElementById('checkBtn');
 const clearBtn = document.getElementById('clearBtn');
+const feedbackMsg = document.getElementById('feedbackMsg');
 const historyTableBody = document.getElementById('historyTableBody');
+const gameStatsPanel = document.getElementById('gameStatsPanel');
 const noHistoryMsg = document.getElementById('noHistoryMsg');
-const totalCorrectEl = document.getElementById('totalCorrect');
-const totalAttemptsEl = document.getElementById('totalAttempts');
+const contextualHelp = document.getElementById('contextualHelp');
 
-/* ---------- GAME DATA ---------- */
-let CHORDS = [];
-let currentMode = 'majorminor';
-let currentChord_local = null;
-let selectedMap = new Map();
-let mistakeQueue = [];
-let recentChords = [];
-const RECENT_MAX = 12;
+document.getElementById('soundButtons').addEventListener('click', (e) => {
+  if(e.target.classList.contains('sound-btn')){
+    const mode = e.target.dataset.mode;
+    updateSoundUI(mode);
+    ensureAudio();
+    playNote('C4', 0, 0.8);
+  }
+});
 
-/* ---------- STATS ---------- */
-const globalStats = { correct: 0, attempts: 0 };
+/* ---------- GAMEPLAY ---------- */
+let CHORDS = []; let currentMode = 'majorminor';
+let mistakeQueue = []; let recentChords = []; const RECENT_MAX = 12;
+let isFreeMode = false;
+
 const chordStats = {};
-
-function updateGlobalStats(isCorrect){
-  globalStats.attempts++;
-  if(isCorrect) globalStats.correct++;
-  totalCorrectEl.textContent = globalStats.correct;
-  totalAttemptsEl.textContent = globalStats.attempts;
-}
+const gameMetrics = { 
+  totalPresses: 0, correctNotes: 0, wrongNotes: 0, notesCount: {},
+  sessionStartTime: Date.now()
+};
+ALL_NOTES_ORDER.forEach(n => gameMetrics.notesCount[n] = 0);
 
 function updateChordStats(chordId, isCorrect){
-  if(!chordStats[chordId]){
-    chordStats[chordId] = { label: '', correct: 0, wrong: 0 };
+  if(!chordStats[chordId]) chordStats[chordId] = { label: '', correct: 0, wrong: 0, firstTry: 0 }; 
+  if(!chordStats[chordId].label){
     const chord = CHORDS.find(c => c.id === chordId);
     if(chord) chordStats[chordId].label = convertAccidentalsForDisplay(chord.label_es);
   }
@@ -507,14 +733,78 @@ function updateChordStats(chordId, isCorrect){
   else chordStats[chordId].wrong++;
 }
 
+function formatDuration(ms) {
+  const totalSecs = Math.floor(ms / 1000);
+  const m = Math.floor(totalSecs / 60);
+  const s = totalSecs % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 function renderHistory(){
   historyTableBody.innerHTML = '';
   const ids = Object.keys(chordStats);
   if(ids.length === 0){
     noHistoryMsg.style.display = 'block';
+    const elapsed = Date.now() - gameMetrics.sessionStartTime;
+    gameStatsPanel.innerHTML = `
+      <div class="stat-box"><span class="stat-value">0</span><span class="stat-label">Notas</span></div>
+      <div class="stat-box"><span class="stat-value">${formatDuration(elapsed)}</span><span class="stat-label">Tiempo</span></div>
+    `;
+    document.getElementById('totalCorrectVal').textContent = '0';
+    document.getElementById('totalWrongVal').textContent = '0';
+    document.getElementById('totalAttemptsVal').textContent = '0';
     return;
   }
   noHistoryMsg.style.display = 'none';
+
+  let mostFreqNote = '-', maxCount = 0;
+  for(const [note, count] of Object.entries(gameMetrics.notesCount)){
+    if(count > maxCount && count > 0){ maxCount = count; mostFreqNote = spanishNameFromPC(note); }
+  }
+  
+  let favoriteChord = 'Ninguno perfecto aún';
+  let maxFirstTry = 0;
+  for(const id of ids){
+    const s = chordStats[id];
+    if(s.firstTry > maxFirstTry){
+      maxFirstTry = s.firstTry;
+      favoriteChord = s.label;
+    }
+  }
+  
+  let enemyChord = '-', maxChordErrors = 0;
+  for(const id of ids){
+    const s = chordStats[id];
+    if(s.wrong > maxChordErrors){ maxChordErrors = s.wrong; enemyChord = s.label; }
+  }
+  
+  let totalCorrect = 0, totalWrong = 0;
+  ids.forEach(id => { totalCorrect += chordStats[id].correct; totalWrong += chordStats[id].wrong; });
+  const totalAttempts = totalCorrect + totalWrong;
+  const accuracy = totalAttempts === 0 ? 0 : Math.round((totalCorrect / totalAttempts) * 100);
+  const elapsed = Date.now() - gameMetrics.sessionStartTime;
+
+  gameStatsPanel.innerHTML = `
+    <div class="stat-box">
+      <span class="stat-value">${gameMetrics.totalPresses}</span><span class="stat-label">Notas</span>
+      <div class="stat-detail"><span class="text-green">✅ ${gameMetrics.correctNotes}</span><span class="text-red">❌ ${gameMetrics.wrongNotes}</span></div>
+    </div>
+    <div class="stat-box">
+      <span class="stat-value">${mostFreqNote}</span><span class="stat-label">Favorita</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-value">${formatDuration(elapsed)}</span><span class="stat-label">Tiempo</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-value">${accuracy}%</span><span class="stat-label">Precisión</span>
+    </div>
+    <div class="stat-box wide">
+      <span class="stat-value" style="font-size:1rem;">${favoriteChord}</span><span class="stat-label">Acorde Favorito</span>
+    </div>
+    <div class="stat-box wide">
+      <span class="stat-value" style="font-size:1rem; color: var(--danger);">${enemyChord}</span><span class="stat-label">Acorde Enemigo</span>
+    </div>
+  `;
 
   let statsArray = ids.map(id => ({ id, ...chordStats[id] }));
   statsArray.sort((a,b) => {
@@ -525,23 +815,47 @@ function renderHistory(){
 
   statsArray.forEach(stat => {
     const total = stat.correct + stat.wrong;
-    const percent = total === 0 ?0 : Math.round((stat.correct / total) * 100);
+    const percent = total === 0 ? 0 : Math.round((stat.correct / total) * 100);
     const row = document.createElement('tr');
     const errorClass = stat.wrong > 0 ? 'stat-error' : '';
     const successClass = stat.correct > 0 && stat.wrong === 0 ? 'stat-success' : '';
-    const percentClass = percent >= 80 ? 'percent-high' : (percent < 60 ? 'percent-low' : '');
-    row.innerHTML = `
-      <td>${stat.label}</td>
-      <td class="${successClass}">${stat.correct}</td>
-      <td class="${errorClass}">${stat.wrong}</td>
-      <td>${total}</td>
-      <td><span class="stat-percent ${percentClass}">${percent}%</span></td>
-    `;
+    row.innerHTML = `<td>${stat.label}</td><td class="${successClass}">${stat.correct}</td><td class="${errorClass}">${stat.wrong}</td><td>${total}</td><td class="stat-percent">${percent}%</td>`;
     historyTableBody.appendChild(row);
   });
+
+  document.getElementById('totalCorrectVal').textContent = totalCorrect;
+  document.getElementById('totalWrongVal').textContent = totalWrong;
+  document.getElementById('totalAttemptsVal').textContent = totalAttempts;
 }
 
-/* ---------- CHORD LOGIC ---------- */
+function renderContextualHelp(mode){
+  let html = "<h3>Fórmulas:</h3><ul>";
+  if(mode === 'majorminor' || mode === 'allfundamental'){
+    html += "<li>Mayor: 4 + 3</li><li>Menor: 3 + 4</li>";
+  }
+  if(mode === 'sevenths' || mode === 'allfundamental'){
+    html += "<li>Maj7: 4 + 3 + 4</li><li>Dom7: 4 + 3 + 3</li><li>m7: 3 + 4 + 3</li>";
+  }
+  if(mode === 'altered' || mode === 'allfundamental'){
+    html += "<li>dim: 3 + 3</li><li>aug: 4 + 4</li><li>sus4: 5 + 2</li><li>sus2: 2 + 5</li>";
+  }
+  html += `</ul><div id="triviaText" class="trivia-text">Hace 5 Respuestas correctas para un super dato.</div>`;
+  contextualHelp.innerHTML = html;
+}
+
+function handleTriviaUI(){
+  const el = document.getElementById('triviaText');
+  if(!el) return;
+  const remainder = correctStreak % 5;
+  
+  if(remainder === 0 && correctStreak > 0) {
+    el.textContent = "¿Sabías que... " + triviaFacts[Math.floor(Math.random() * triviaFacts.length)];
+  } else {
+    const remaining = 5 - remainder;
+    el.textContent = `Hace ${remaining} Respuestas correctas para un super dato.`;
+  }
+}
+
 function pushChord(mode, rootPc, rootSpanishName, suffix, letters, type, allowInversion=false){
   const id = `${mode}:${rootPc}:${suffix || ''}`;
   const label_es = suffix ? `${rootSpanishName}${suffix}` : `${rootSpanishName}`;
@@ -555,43 +869,40 @@ function buildChordPool(mode = 'majorminor'){
   CHORDS = [];
   if(mode === 'majorminor'){
     for(const r of ROOTS){
-      const root = r.pc; const maj3 = pcUp(root,4); const min3 = pcUp(root,3); const fifth = pcUp(root,7);
-      pushChord(mode, root, r.name, '', [root, maj3, fifth], 'triad', false);
-      pushChord(mode, root, r.name, 'm', [root, min3, fifth], 'triad', false);
+      const root = r.pc;
+      pushChord(mode, root, r.name, '', [root, pcUp(root,4), pcUp(root,7)], 'triad', false);
+      pushChord(mode, root, r.name, 'm', [root, pcUp(root,3), pcUp(root,7)], 'triad', false);
     }
   } else if(mode === 'sevenths'){
     for(const r of ROOTS){
-      const root = r.pc; const maj3 = pcUp(root,4); const min3 = pcUp(root,3); const fifth = pcUp(root,7);
-      const maj7 = pcUp(root,11); const dom7 = pcUp(root,10);
-      pushChord(mode, root, r.name, 'maj7', [root, maj3, fifth, maj7], '7th', false);
-      pushChord(mode, root, r.name, '7', [root, maj3, fifth, dom7], '7th', false);
-      pushChord(mode, root, r.name, 'm7', [root, min3, fifth, dom7], '7th', false);
+      const root = r.pc;
+      pushChord(mode, root, r.name, 'maj7', [root, pcUp(root,4), pcUp(root,7), pcUp(root,11)], '7th', false);
+      pushChord(mode, root, r.name, '7', [root, pcUp(root,4), pcUp(root,7), pcUp(root,10)], '7th', false);
+      pushChord(mode, root, r.name, 'm7', [root, pcUp(root,3), pcUp(root,7), pcUp(root,10)], '7th', false);
     }
   } else if(mode === 'altered'){
     for(const r of ROOTS){
-      const root = r.pc; const min3 = pcUp(root,3); const maj3 = pcUp(root,4);
-      const dim5 = pcUp(root,6); const aug5 = pcUp(root,8); const sus4 = pcUp(root,5); const sus2 = pcUp(root,2);
-      pushChord(mode, root, r.name, 'dim', [root, min3, dim5], 'triad', false);
-      pushChord(mode, root, r.name, 'aug', [root, maj3, aug5], 'triad', false);
-      pushChord(mode, root, r.name, 'sus4', [root, sus4, pcUp(root,7)], 'triad', false);
-      pushChord(mode, root, r.name, 'sus2', [root, sus2, pcUp(root,7)], 'triad', false);
+      const root = r.pc;
+      pushChord(mode, root, r.name, 'dim', [root, pcUp(root,3), pcUp(root,6)], 'triad', false);
+      pushChord(mode, root, r.name, 'aug', [root, pcUp(root,4), pcUp(root,8)], 'triad', false);
+      pushChord(mode, root, r.name, 'sus4', [root, pcUp(root,5), pcUp(root,7)], 'triad', false);
+      pushChord(mode, root, r.name, 'sus2', [root, pcUp(root,2), pcUp(root,7)], 'triad', false);
     }
-  } else if(mode === 'inversions'){
+  } else if(mode === 'allfundamental'){
     for(const r of ROOTS){
-      const root = r.pc; const maj3 = pcUp(root,4); const min3 = pcUp(root,3); const fifth = pcUp(root,7);
-      const maj7 = pcUp(root,11); const dom7 = pcUp(root,10);
-      const dim5 = pcUp(root,6); const aug5 = pcUp(root,8); const sus4 = pcUp(root,5); const sus2 = pcUp(root,2);
-      pushChord(mode, root, r.name, '', [root, maj3, fifth], 'triad', true);
-      pushChord(mode, root, r.name, 'm', [root, min3, fifth], 'triad', true);
-      pushChord(mode, root, r.name, '7', [root, maj3, fifth, dom7], '7th', true);
-      pushChord(mode, root, r.name, 'dim', [root, min3, dim5], 'triad', true);
-      pushChord(mode, root, r.name, 'aug', [root, maj3, aug5], 'triad', true);
-      pushChord(mode, root, r.name, 'sus4', [root, sus4, pcUp(root,7)], 'triad', true);
-      pushChord(mode, root, r.name, 'sus2', [root, sus2, pcUp(root,7)], 'triad', true);
-      pushChord(mode, root, r.name, 'maj7', [root, maj3, fifth, maj7], '7th', true);
-      pushChord(mode, root, r.name, 'm7', [root, min3, fifth, dom7], '7th', true);
+      const root = r.pc;
+      pushChord(mode, root, r.name, '', [root, pcUp(root,4), pcUp(root,7)], 'triad', false);
+      pushChord(mode, root, r.name, 'm', [root, pcUp(root,3), pcUp(root,7)], 'triad', false);
+      pushChord(mode, root, r.name, 'dim', [root, pcUp(root,3), pcUp(root,6)], 'triad', false);
+      pushChord(mode, root, r.name, 'aug', [root, pcUp(root,4), pcUp(root,8)], 'triad', false);
+      pushChord(mode, root, r.name, 'sus4', [root, pcUp(root,5), pcUp(root,7)], 'triad', false);
+      pushChord(mode, root, r.name, 'sus2', [root, pcUp(root,2), pcUp(root,7)], 'triad', false);
+      pushChord(mode, root, r.name, 'maj7', [root, pcUp(root,4), pcUp(root,7), pcUp(root,11)], '7th', false);
+      pushChord(mode, root, r.name, '7', [root, pcUp(root,4), pcUp(root,7), pcUp(root,10)], '7th', false);
+      pushChord(mode, root, r.name, 'm7', [root, pcUp(root,3), pcUp(root,7), pcUp(root,10)], '7th', false);
     }
   }
+
   CHORDS.sort((a,b) => {
     const idxA = ALL_NOTES_ORDER.indexOf(a.rootPc);
     const idxB = ALL_NOTES_ORDER.indexOf(b.rootPc);
@@ -600,9 +911,7 @@ function buildChordPool(mode = 'majorminor'){
   });
 }
 
-/* ---------- UI BUILD ---------- */
 function buildPiano(){
-  const whiteKeys = document.getElementById('whiteKeys'); const blackKeys = document.getElementById('blackKeys');
   whiteKeys.innerHTML = ""; blackKeys.innerHTML = "";
   const WHITE_SEQUENCE = ["C","D","E","F","G","A","B"];
   const whiteOrder = [];
@@ -618,197 +927,52 @@ function buildPiano(){
     const blackPC = (()=>{ if(wn==='C') return 'C#'; if(wn==='D') return 'D#'; if(wn==='F') return 'F#'; if(wn==='G') return 'G#'; if(wn==='A') return 'A#'; return null; })();
     if(blackPC){
       const octave = allWhiteDOM[i].dataset.note.replace(wn,'');
-      const b = document.createElement('div'); b.className = `key black black-key ${blackPC.replace('#','s')}`;
+      const b = document.createElement('div');
+      b.className = `key black black-key ${blackPC.replace('#','s')}`;
       const left = (i + 1) / allWhiteDOM.length * 100 - (100 / allWhiteDOM.length) * 0.35;
       b.style.left = `${left}%`;
       b.dataset.note = blackPC + octave; b.dataset.pc = blackPC;
-      b.addEventListener('pointerdown', onKeyClicked); blackKeys.appendChild(b);
+      b.addEventListener('pointerdown', onKeyClicked);
+      blackKeys.appendChild(b);
     }
   }
 }
 
-function onKeyClicked(e){
-  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-  const el = e.currentTarget; const pcRaw = el.dataset.pc; const pc = normalizePC(pcRaw);
-  const existing = selectedMap.get(pc);
-  if(existing === el){
-    selectedMap.delete(pc); el.classList.remove('selected','error-key');
-  } else {
-    if(existing && existing !== el) existing.classList.remove('selected','error-key');
-    const maxAllowed = currentChord_local ? currentChord_local.letters.length : 3;
-    if(!selectedMap.has(pc) && selectedMap.size >= maxAllowed){
-      flashMessage(`Ya seleccionaste ${maxAllowed} notas.`, 1000); return;
-    }
-    selectedMap.set(pc, el); el.classList.add('selected'); playNote(el.dataset.note, 0, 1.2);
-  }
-  updateCheckButton(); e.preventDefault();
-}
-function updateCheckButton(){ 
-  if(!currentChord_local) { checkBtn.disabled = true; return; }
-  checkBtn.disabled = (selectedMap.size !== currentChord_local.letters.length);
-}
-
-function pickSmartChord(){
-  if(mistakeQueue.length > 0){
-    for(let item of mistakeQueue) item.count--;
-    const readyIndex = mistakeQueue.findIndex(item => item.count <= 0);
-    if(readyIndex !== -1){
-      const readyItem = mistakeQueue.splice(readyIndex, 1)[0];
-      const cand = CHORDS.find(c => c.id === readyItem.id);
-      if(cand) return cand;
+function buildHelpPiano(){ 
+  const helpWhiteKeys = document.getElementById('helpWhiteKeys');
+  const helpBlackKeys = document.getElementById('helpBlackKeys');
+  helpWhiteKeys.innerHTML = ""; helpBlackKeys.innerHTML = "";
+  const WHITE_SEQUENCE = ["C","D","E","F","G","A","B"];
+  const whiteOrder = [];
+  const OCTAVE = 4;
+  for(const w of WHITE_SEQUENCE) whiteOrder.push(w + OCTAVE);
+  
+  whiteOrder.forEach(note=>{
+    const btn = document.createElement('div'); btn.className = 'key white white-key';
+    btn.dataset.note = note; btn.dataset.pc = pitchClass(note);
+    helpWhiteKeys.appendChild(btn);
+  });
+  const allWhiteDOM = helpWhiteKeys.children;
+  for(let i=0;i<allWhiteDOM.length;i++){
+    const wn = pitchClass(allWhiteDOM[i].dataset.note);
+    const blackPC = (()=>{ if(wn==='C') return 'C#'; if(wn==='D') return 'D#'; if(wn==='F') return 'F#'; if(wn==='G') return 'G#'; if(wn==='A') return 'A#'; return null; })();
+    if(blackPC){
+      const b = document.createElement('div');
+      b.className = `key black black-key ${blackPC.replace('#','s')}`;
+      const left = (i + 1) / allWhiteDOM.length * 100 - (100 / allWhiteDOM.length) * 0.35;
+      b.style.left = `${left}%`;
+      b.dataset.note = blackPC + OCTAVE; b.dataset.pc = blackPC;
+      helpBlackKeys.appendChild(b);
     }
   }
-  if(!CHORDS || CHORDS.length===0) buildChordPool(currentMode);
-  let tries = 0; let cand;
-  do { cand = CHORDS[Math.floor(Math.random() * CHORDS.length)]; tries++; if(tries > 400) break; }
-  while(recentChords.includes(cand.id) && tries < 400);
-  recentChords.push(cand.id); if(recentChords.length > RECENT_MAX) recentChords.shift();
-  return cand;
 }
 
-function startMode(mode){
-  currentMode = mode; mistakeQueue = []; recentChords = [];
-  menuPanel.style.display = 'none'; gameCard.style.display = 'block'; helpCard.style.display = 'none'; historyCard.style.display = 'none'; dictationCard.style.display = 'none';
-  selectedMap.clear(); buildPiano(); buildChordPool(mode);
-  modeTitle.textContent = { 'majorminor':'Mayores y menores', 'sevenths':'Acordes con 7mas', 'altered':'Disminuido / Aumentado / sus', 'inversions':'Acordes con inversiones' }[mode] || 'Modo';
-  nextChord();
-}
-function goBackToMenu(){
-  clearSelection(); [gameCard, helpCard, historyCard, dictationCard].forEach(e=>e.style.display='none'); menuPanel.style.display='block';
-}
-function showHelp(){
-  menuPanel.style.display = 'none'; helpCard.style.display = 'block'; gameCard.style.display = 'none'; historyCard.style.display = 'none'; window.scrollTo({ top: 0, behavior: 'instant' });
-}
-function showHistory(){
-  menuPanel.style.display = 'none'; historyCard.style.display = 'block'; gameCard.style.display = 'none'; helpCard.style.display = 'none'; renderHistory(); window.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-function buildLabelsForChord(chord, inversionIndex = null){
-  const rootPc = chord.rootPc; const rootSpanish = chord.rootSpanishName;
-  const preferFlats = rootSpanish && rootSpanish.toLowerCase().includes('b');
-  const enRoot = preferFlats ? {"C#":"Db","D#":"Eb","F#":"Gb","G#":"Ab","A#":"Bb"}[rootPc] || rootPc : rootPc;
-  const base_es = chord.label_es; const base_en = chord.label_en.replace(/^[A-G][#b]?/, enRoot);
-  if(inversionIndex === null || inversionIndex === undefined) return { label_es: base_es, label_en: base_en };
-  else {
-    const bassPc = chord.letters[inversionIndex % chord.letters.length];
-    const spelled = spellPcRelativeToRoot(rootPc, rootSpanish, bassPc);
-    return { label_es: `${base_es} / ${spelled.es}`, label_en: `${base_en} / ${spelled.en}` };
-  }
-}
-
-function nextChord(){
-  clearSelection(); feedbackMsg.textContent = '';
-  if(!CHORDS || CHORDS.length === 0) buildChordPool(currentMode);
-  let cand = pickSmartChord();
-  if(!cand){ buildChordPool(currentMode); cand = pickSmartChord(); if(!cand) return; }
-  if(currentMode === 'inversions' && cand.allowInversion){
-    const maxInv = cand.letters.length - 1; const invIdx = Math.floor(Math.random() * maxInv) + 1;
-    const labels = buildLabelsForChord(cand, invIdx);
-    currentChord_local = { ...cand, label_es: labels.label_es, label_en: labels.label_en, inversionIndex: invIdx };
-    currentChord_local.playNotes = buildPlayNotesForChord(currentChord_local.letters, { inversionIndex: invIdx });
-  } else {
-    const labels = buildLabelsForChord(cand, null);
-    currentChord_local = { ...cand, label_es: labels.label_es, label_en: labels.label_en };
-    currentChord_local.playNotes = buildPlayNotesForChord(currentChord_local.letters);
-  }
-  renderChordLabel(currentChord_local);
-  chordHint.textContent = `Selecciona las ${currentChord_local.letters.length} notas que forman el acorde.`;
-  playChordBtn.disabled = false; updateCheckButton();
-}
-
-function buildPlayNotesForChord(letters, options = {}){
-  const notes = [];
-  if(options.inversionIndex !== undefined && options.inversionIndex !== null){
-    const inv = options.inversionIndex; const bassPc = letters[inv % letters.length];
-    let bassNote = pianoNotes.find(n => pitchClass(n) === bassPc && parseInt(n.replace(/[A-G#b]/g,''),10) === START_OCTAVE);
-    if(!bassNote) bassNote = pianoNotes.find(n => pitchClass(n) === bassPc);
-    if(bassNote) notes.push(bassNote);
-    for(let i=0;i<letters.length;i++){
-      if(i===inv) continue; const pc = letters[i];
-      let candidate = pianoNotes.find(n => pitchClass(n) === pc && parseInt(n.replace(/[A-G#b]/g,''),10) >= START_OCTAVE);
-      if(!candidate) candidate = pianoNotes.find(n => pitchClass(n) === pc); if(candidate) notes.push(candidate);
-    }
-    return notes;
-  } else {
-    for(const pc of letters){
-      let found = pianoNotes.find(n => pitchClass(n) === pc && parseInt(n.replace(/[A-G#b]/g,''),10) >= START_OCTAVE);
-      if(!found) found = pianoNotes.find(n => pitchClass(n) === pc); if(found) notes.push(found);
-    }
-    return notes;
-  }
-}
-
-function renderChordLabel(chord){
-  let es = convertAccidentalsForDisplay(chord.label_es || '');
-  let en = convertAccidentalsForDisplay(chord.label_en || '');
-  chordLabel.innerHTML = `<div class="labelRow"><div class="labelBox labelEs" title="Cifrado en español">${es}</div><div class="labelBox labelEn" title="Cifrado americano">${en}</div></div>`;
-}
-
-function clearSelection(){
-  selectedMap.clear(); updateCheckButton();
-  Array.from(document.querySelectorAll('.key')).forEach(k=>k.classList.remove('selected','correct','error-key'));
-  feedbackMsg.textContent = '';
-}
-
-function setsEqual(a,b){ if(a.size !== b.size) return false; for(const x of a) if(!b.has(x)) return false; return true; }
-function flashMessage(msg, ms=900){ feedbackMsg.style.color = 'var(--muted)'; feedbackMsg.textContent = msg; setTimeout(()=>{ if(feedbackMsg.textContent===msg) feedbackMsg.textContent=''; }, ms); }
-
-function checkSelection(){
-  if(!currentChord_local) return;
-  const requiredCount = currentChord_local.letters.length;
-  if(selectedMap.size !== requiredCount) return;
-  const goalSet = new Set(currentChord_local.letters.map(n => normalizePC(n)));
-  const selSet = new Set(Array.from(selectedMap.keys()).map(s => normalizePC(s)));
-  const selectedEntries = Array.from(selectedMap.entries()).map(([pc, el]) => { const noteFull = el.dataset.note; return { pc: normalizePC(pc), el, midi: noteToMidi(noteFull) }; });
-  selectedEntries.sort((a,b) => a.midi - b.midi); const lowest = selectedEntries[0];
-  let isError = false;
-
-  if(!setsEqual(goalSet, selSet)){
-    isError = true; feedbackMsg.style.color = 'var(--danger)'; feedbackMsg.textContent = 'Notas incorrectas.';
-    selectedMap.forEach((el, pc) => { if(!goalSet.has(normalizePC(pc))){ el.classList.remove('selected'); el.classList.add('error-key'); } });
-    mistakeQueue.push({ id: currentChord_local.id, count: 5 });
-    updateChordStats(currentChord_local.id, false); updateGlobalStats(false); playErrorSound(); return;
-  }
-
-  if(currentMode === 'inversions' && currentChord_local.inversionIndex !== undefined && currentChord_local.inversionIndex !== null){
-    const bassPc = normalizePC(currentChord_local.letters[currentChord_local.inversionIndex]);
-    if(lowest.pc !== bassPc){
-      isError = true; feedbackMsg.style.color = 'var(--danger)'; feedbackMsg.textContent = 'El bajo debe ser el indicado.';
-      selectedMap.forEach((el, pc) => { if(el === lowest.el){ el.classList.remove('selected'); el.classList.add('error-key'); } });
-      mistakeQueue.push({ id: currentChord_local.id, count: 5 });
-      updateChordStats(currentChord_local.id, false); updateGlobalStats(false); playErrorSound(); return;
-    }
-  } else {
-    const rootPc = normalizePC(currentChord_local.letters[0]);
-    if(lowest.pc !== rootPc){
-      isError = true; feedbackMsg.style.color = 'var(--danger)'; feedbackMsg.textContent = 'El bajo debe ser la tónica.';
-      selectedMap.forEach((el, pc) => { if(el === lowest.el){ el.classList.remove('selected'); el.classList.add('error-key'); } });
-      mistakeQueue.push({ id: currentChord_local.id, count: 5 });
-      updateChordStats(currentChord_local.id, false); updateGlobalStats(false); playErrorSound(); return;
-    }
-  }
-  feedbackCorrect();
-}
-
-function feedbackCorrect(){
-  feedbackMsg.style.color = 'var(--success)'; feedbackMsg.textContent = '¡Correcto!';
-  selectedMap.forEach((el, pc) => el.classList.add('correct'));
-  updateChordStats(currentChord_local.id, true); updateGlobalStats(true);
-  try { if(currentChord_local.playNotes && currentChord_local.playNotes.length) playChordSound(currentChord_local.playNotes); else playChordSound(Array.from(new Set(currentChord_local.letters))); }
-  catch(e){ console.error(e); }
-  setTimeout(()=>{ try { nextChord(); } catch (err){ console.error(err); } }, 650);
-}
-
-/* ---------- DICTATION (Simplified) ---------- */
-let dictPool = [], dictRecent = [], currentDictChord = null, selectedDictRoot = null, selectedDictMode = null;
-const dictWhiteKeys = document.getElementById('dictWhiteKeys'); const dictBlackKeys = document.getElementById('dictBlackKeys');
-const dictPiano = document.getElementById('dictPiano'); const dictNotesList = document.getElementById('dictNotesList');
-const dictModesList = document.getElementById('dictModesList'); const dictFeedback = document.getElementById('dictFeedback');
-const dictationMenu = document.getElementById('dictationMenu'); const dictationGame = document.getElementById('dictationGame');
-
-function buildDictationPiano(){
+function buildDictationPiano(){ 
+  const dictWhiteKeys = document.getElementById('dictWhiteKeys');
+  const dictBlackKeys = document.getElementById('dictBlackKeys');
   dictWhiteKeys.innerHTML = ""; dictBlackKeys.innerHTML = "";
-  const WHITE_SEQUENCE = ["C","D","E","F","G","A","B"]; const whiteOrder = [];
+  const WHITE_SEQUENCE = ["C","D","E","F","G","A","B"];
+  const whiteOrder = [];
   for(let o=START_OCTAVE;o<START_OCTAVE+OCTAVES;o++) for(const w of WHITE_SEQUENCE) whiteOrder.push(w + o);
   whiteOrder.forEach(note=>{
     const btn = document.createElement('div'); btn.className = 'key white white-key';
@@ -820,22 +984,504 @@ function buildDictationPiano(){
     const blackPC = (()=>{ if(wn==='C') return 'C#'; if(wn==='D') return 'D#'; if(wn==='F') return 'F#'; if(wn==='G') return 'G#'; if(wn==='A') return 'A#'; return null; })();
     if(blackPC){
       const octave = allWhiteDOM[i].dataset.note.replace(wn,'');
-      const b = document.createElement('div'); b.className = `key black black-key ${blackPC.replace('#','s')}`;
+      const b = document.createElement('div');
+      b.className = `key black black-key ${blackPC.replace('#','s')}`;
       const left = (i + 1) / allWhiteDOM.length * 100 - (100 / allWhiteDOM.length) * 0.35;
-      b.style.left = `${left}%`; b.dataset.note = blackPC + octave; b.dataset.pc = blackPC; dictBlackKeys.appendChild(b);
+      b.style.left = `${left}%`;
+      b.dataset.note = blackPC + octave; b.dataset.pc = blackPC;
+      dictBlackKeys.appendChild(b);
     }
   }
 }
 
+let currentChord_local = null;
+const selectedMap = new Map(); 
+
+function onKeyClicked(e){
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  const el = e.currentTarget;
+  const pcRaw = el.dataset.pc;
+  const pc = normalizePC(pcRaw);
+  const existing = selectedMap.get(pc);
+
+  if(isFreeMode){
+    playNote(el.dataset.note, 0, 1.2);
+    el.classList.add('pressed');
+    setTimeout(() => el.classList.remove('pressed'), 150);
+    return;
+  }
+
+  if(existing === el){
+    selectedMap.delete(pc);
+    el.classList.remove('selected','error-key');
+  } else {
+    if(existing && existing !== el) existing.classList.remove('selected','error-key');
+    const maxAllowed = currentChord_local ? currentChord_local.letters.length : 3;
+    if(!selectedMap.has(pc) && selectedMap.size >= maxAllowed){
+      flashMessage(`Máximo ${maxAllowed} notas.`, 1000); return;
+    }
+    selectedMap.set(pc, el);
+    el.classList.add('selected');
+    gameMetrics.totalPresses++;
+    gameMetrics.notesCount[pc]++;
+    if(currentChord_local){
+      if(currentChord_local.letters.includes(pc)) gameMetrics.correctNotes++;
+      else gameMetrics.wrongNotes++;
+    }
+    playNote(el.dataset.note, 0, 1.2);
+  }
+
+  if(currentChord_local && selectedMap.size === currentChord_local.letters.length){
+    checkSelection();
+  }
+  
+  e.preventDefault();
+}
+
+function checkSelection(){
+  if(!currentChord_local) return;
+  const requiredCount = currentChord_local.letters.length;
+  if(selectedMap.size !== requiredCount) return;
+
+  const goalSet = new Set(currentChord_local.letters.map(n => normalizePC(n)));
+  const selSet = new Set(Array.from(selectedMap.keys()).map(s => normalizePC(s)));
+
+  const selectedEntries = Array.from(selectedMap.entries()).map(([pc, el]) => {
+    const noteFull = el.dataset.note;
+    return { pc: normalizePC(pc), el, midi: noteToMidi(noteFull) };
+  });
+  selectedEntries.sort((a,b) => a.midi - b.midi);
+  const lowest = selectedEntries[0];
+
+  let isError = false;
+
+  if(!setsEqual(goalSet, selSet)){
+    isError = true;
+    feedbackMsg.style.color = 'var(--danger)';
+    feedbackMsg.textContent = getRandomError();
+    selectedMap.forEach((el, pc) => {
+      const norm = normalizePC(pc);
+      if(!goalSet.has(norm)){
+        el.classList.remove('selected');
+        el.classList.add('error-key');
+      }
+    });
+    mistakeQueue.push({ id: currentChord_local.id, count: 5 });
+    updateChordStats(currentChord_local.id, false);
+    playErrorSound();
+    return;
+  }
+
+  const rootPc = normalizePC(currentChord_local.letters[0]);
+  if(lowest.pc !== rootPc){
+    isError = true;
+    const rootDisplayEs = spanishNameFromPC(rootPc);
+    feedbackMsg.style.color = 'var(--danger)';
+    feedbackMsg.textContent = getRandomError();
+    selectedMap.forEach((el, pc) => {
+      if(el === lowest.el){
+        el.classList.remove('selected');
+        el.classList.add('error-key');
+      }
+    });
+    mistakeQueue.push({ id: currentChord_local.id, count: 5 });
+    updateChordStats(currentChord_local.id, false);
+    playErrorSound();
+    return;
+  }
+
+  feedbackCorrect();
+}
+
+function feedbackCorrect(){
+  feedbackMsg.style.color = 'var(--success)';
+  feedbackMsg.textContent = '¡Correcto!';
+  selectedMap.forEach((el, pc) => el.classList.add('correct'));
+  
+  const stats = chordStats[currentChord_local.id];
+  if(stats && stats.wrong === 0){
+    stats.firstTry = (stats.firstTry || 0) + 1;
+  }
+  updateChordStats(currentChord_local.id, true);
+
+  correctStreak++;
+  handleTriviaUI();
+
+  if(selectedSoundMode === 'random'){
+    currentRandomPresetIndex = (currentRandomPresetIndex + 1) % 4;
+  }
+
+  try {
+    if(currentChord_local.playNotes && currentChord_local.playNotes.length) playChordSound(currentChord_local.playNotes);
+    else playChordSound(Array.from(new Set(currentChord_local.letters)));
+  } catch(e){ console.error(e); }
+
+  setTimeout(()=>{
+    try {
+      nextChord();
+    } catch (err){
+      console.error(err); nextChord();
+    }
+  }, 600);
+}
+
+function pickSmartChord(){
+  const lastId = currentChord_local ? currentChord_local.id : null;
+
+  if(mistakeQueue.length > 0){
+    for(let item of mistakeQueue) item.count--;
+    
+    let readyIndex = -1;
+    for(let i=0; i<mistakeQueue.length; i++) {
+        if (mistakeQueue[i].count <= 0) {
+            if (mistakeQueue[i].id !== lastId) {
+                readyIndex = i;
+                break;
+            }
+        }
+    }
+    
+    if(readyIndex !== -1){
+      const readyItem = mistakeQueue.splice(readyIndex, 1)[0];
+      const chord = CHORDS.find(c => c.id === readyItem.id);
+      if(chord) return chord;
+    }
+  }
+  
+  if(!CHORDS || CHORDS.length===0) buildChordPool(currentMode);
+  let tries = 0; let cand;
+  do {
+    cand = CHORDS[Math.floor(Math.random() * CHORDS.length)];
+    tries++;
+    if(tries > 400) break;
+  } while(recentChords.includes(cand.id) && tries < 400);
+  recentChords.push(cand.id);
+  if(recentChords.length > RECENT_MAX) recentChords.shift();
+  return cand;
+}
+
+function pickNextChordDeterministic(){
+  if(!CHORDS || CHORDS.length===0) buildChordPool(currentMode);
+  if(!CHORDS || CHORDS.length===0) return null;
+  if(!currentChord_local) return pickSmartChord();
+  const currentId = currentChord_local.id;
+  const idx = CHORDS.findIndex(c => c.id === currentId);
+  let nextIdx = (idx >= 0) ? (idx + 1) % CHORDS.length : Math.floor(Math.random() * CHORDS.length);
+  if(CHORDS[nextIdx].id === currentId) nextIdx = (nextIdx + 1) % CHORDS.length;
+  return CHORDS[nextIdx];
+}
+
+function buildPlayNotesForChord(letters){
+  const notes = [];
+  for(const pc of letters){
+    let found = pianoNotes.find(n => pitchClass(n) === pc && parseInt(n.replace(/[A-G#b]/g,''),10) >= START_OCTAVE);
+    if(!found) found = pianoNotes.find(n => pitchClass(n) === pc);
+    if(found) notes.push(found);
+  }
+  return notes;
+}
+
+function startMode(mode){
+  currentMode = mode;
+  isFreeMode = false;
+  mistakeQueue = []; recentChords = [];
+  menuPanel.style.display = 'none';
+  gameCard.style.display = '';
+  helpCard.style.display = 'none';
+  historyCard.style.display = 'none';
+  dictationCard.style.display = 'none';
+  selectedMap.clear();
+  buildPiano();
+  buildChordPool(mode);
+  renderContextualHelp(mode);
+  
+  document.getElementById('gameGameElements').style.display = 'block';
+  document.getElementById('contextualHelp').style.display = 'block';
+  modeTitle.textContent = {
+    'majorminor':'Mayores y menores', 'sevenths':'Acordes con 7mas', 'altered':'Disminuido / Aumentado / sus',
+    'allfundamental':'Todos los acordes'
+  }[mode] || 'Modo';
+  nextChord();
+}
+
+function goBackToMenu(){
+  clearSelection();
+  gameCard.style.display = 'none';
+  helpCard.style.display = 'none';
+  historyCard.style.display = 'none';
+  dictationCard.style.display = 'none';
+  dictationGame.style.display = 'none';
+  dictationMenu.style.display = 'none';
+  menuPanel.style.display = '';
+  isFreeMode = false;
+}
+
+function startFreePiano(){
+  isFreeMode = true;
+  menuPanel.style.display = 'none';
+  gameCard.style.display = '';
+  helpCard.style.display = 'none';
+  historyCard.style.display = 'none';
+  dictationCard.style.display = 'none';
+  
+  document.getElementById('gameGameElements').style.display = 'none';
+  document.getElementById('contextualHelp').style.display = 'none';
+  modeTitle.textContent = "Piano Libre";
+  
+  buildPiano();
+}
+
+function showHelp(){
+  menuPanel.style.display = 'none'; helpCard.style.display = 'block'; gameCard.style.display = 'none'; historyCard.style.display = 'none'; dictationCard.style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function showHistory(){
+  menuPanel.style.display = 'none'; historyCard.style.display = 'block'; gameCard.style.display = 'none'; helpCard.style.display = 'none'; dictationCard.style.display = 'none';
+  renderHistory();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function getSpanishName(enNote){
+    const map = {
+        "C":"Do","C#":"Do#","Db":"Reb",
+        "D":"Re","D#":"Re#","Eb":"Mib",
+        "E":"Mi","E#":"Mi#","Fb":"Fab",
+        "F":"Fa","F#":"Fa#","Gb":"Solb",
+        "G":"Sol","G#":"Sol#","Ab":"Lab",
+        "A":"La","A#":"La#","Bb":"Sib",
+        "B":"Si","B#":"Si#","Cb":"Dob"
+    };
+    let es = map[enNote] || "";
+    if (enNote.endsWith('bb')) {
+        const base = enNote.slice(0, -2);
+        es = map[base] + 'bb';
+    }
+    if (enNote.endsWith('b')) {
+        const base = enNote.slice(0, -1);
+        es = map[base] + 'b';
+    }
+    if (enNote.endsWith('##')) {
+        const base = enNote.slice(0, -2);
+        es = map[base] + '##';
+    }
+    if (enNote.endsWith('#')) {
+        const base = enNote.slice(0, -1);
+        es = map[base] + '#';
+    }
+    return es;
+}
+
+function corregirBajo(chord, bassPc, spelled){
+    const isFlatKey = chord.rootSpanishName && chord.rootSpanishName.toLowerCase().includes('b');
+    const semitones = (ALL_NOTES_ORDER.indexOf(bassPc) - ALL_NOTES_ORDER.indexOf(normalizePC(chord.rootPc)) + 12) % 12;
+    
+    const isDim = chord.suffix === 'dim';
+    const isAug = chord.suffix === 'aug';
+    const isMin = chord.suffix === 'm' || chord.suffix === 'm7';
+    const isDom = chord.suffix === '7';
+    const isMaj7 = chord.suffix === 'maj7';
+
+    const sharpToFlat = {
+        "F#":"Gb", "C#":"Db", "G#":"Ab", "D#":"Eb", "A#":"Bb"
+    };
+    const flatToSharp = {
+        "Gb":"F#", "Db":"C#", "Ab":"G#", "Eb":"D#", "Bb":"A#"
+    };
+
+    if (isAug && semitones === 8) {
+        if (spelled.en === 'Gb') { spelled.en = 'F#'; spelled.es = 'Fa#'; }
+        if (spelled.en === 'Ab') { spelled.en = 'G#'; spelled.es = 'Sol#'; }
+        if (spelled.en === 'Bb') { spelled.en = 'A#'; spelled.es = 'La#'; }
+        if (spelled.en === 'Db') { spelled.en = 'C#'; spelled.es = 'Do#'; }
+        if (spelled.en === 'Eb') { spelled.en = 'D#'; spelled.es = 'Re#'; }
+        return spelled;
+    }
+
+    if (isDim) {
+        if (semitones === 3 || semitones === 6) {
+            if (sharpToFlat[spelled.en]) {
+                spelled.en = sharpToFlat[spelled.en];
+                spelled.es = getSpanishName(spelled.en);
+            } else if (!spelled.en.includes('#') && !spelled.en.includes('b')) {
+                spelled.en += 'b';
+                spelled.es += 'b';
+            }
+        } else if (semitones === 9) {
+            if (sharpToFlat[spelled.en]) {
+                spelled.en = sharpToFlat[spelled.en] + 'b';
+                spelled.es = getSpanishName(spelled.en);
+            } else if (!spelled.en.includes('#') && !spelled.en.includes('b')) {
+                spelled.en += 'bb';
+                spelled.es += 'bb';
+            } else {
+                spelled.en += 'b';
+                spelled.es += 'b';
+            }
+        }
+        return spelled;
+    }
+
+    if (isFlatKey) {
+        if (sharpToFlat[spelled.en]) {
+            spelled.en = sharpToFlat[spelled.en];
+            spelled.es = getSpanishName(spelled.en);
+        } else if (isMin && semitones === 3) {
+            spelled.en += 'b';
+            spelled.es += 'b';
+        } else if ((isDom || isDim) && semitones === 10) {
+            spelled.en += 'b';
+            spelled.es += 'b';
+        }
+    }
+
+    return spelled;
+}
+
+function buildLabelsForChord(chord, inversionIndex = null){
+  const rootPc = chord.rootPc;
+  const rootSpanish = chord.rootSpanishName;
+  const preferFlats = rootSpanish && rootSpanish.toLowerCase().includes('b');
+  const enRoot = preferFlats ? {"C#":"Db","D#":"Eb","F#":"Gb","G#":"Ab","A#":"Bb"}[rootPc] || rootPc : rootPc;
+  const base_es = chord.label_es;
+  const base_en = chord.label_en.replace(/^[A-G][#b]?/, enRoot);
+  return { label_es: base_es, label_en: base_en };
+}
+
+function nextChord(){
+  clearSelection(); feedbackMsg.textContent = '';
+  if(!CHORDS || CHORDS.length === 0) buildChordPool(currentMode);
+  let cand = pickSmartChord();
+  if(!cand){ buildChordPool(currentMode); cand = pickSmartChord(); if(!cand) return; }
+
+  const labels = buildLabelsForChord(cand, null);
+  currentChord_local = { ...cand, label_es: labels.label_es, label_en: labels.label_en };
+  currentChord_local.playNotes = buildPlayNotesForChord(currentChord_local.letters);
+
+  renderChordLabel(currentChord_local);
+  chordHint.textContent = `Selecciona las ${currentChord_local.letters.length} notas.`;
+  playChordBtn.disabled = false;
+}
+
+function clearSelection(){
+  selectedMap.clear();
+  Array.from(document.querySelectorAll('.key')).forEach(k=>{
+    k.classList.remove('selected','correct','error-key');
+  });
+  feedbackMsg.textContent = '';
+}
+
+function renderChordLabel(chord){
+  let es = convertAccidentalsForDisplay(chord.label_es);
+  let en = convertAccidentalsForDisplay(chord.label_en);
+  chordLabel.innerHTML = `
+    <div class="labelRow" role="group" aria-label="Cifrado del acorde">
+      <div class="labelBox labelEs" title="Español">${es}</div>
+      <div class="labelBox labelEn" title="Americano">${en}</div>
+    </div>
+  `;
+}
+
+function setsEqual(a,b){ if(a.size !== b.size) return false; for(const x of a) if(!b.has(x)) return false; return true; }
+function flashMessage(msg, ms=900){ feedbackMsg.style.color = 'var(--muted)'; feedbackMsg.textContent = msg; setTimeout(()=>{ if(feedbackMsg.textContent===msg) feedbackMsg.textContent=''; }, ms); }
+
+document.getElementById('playHelpAnimBtn').addEventListener('click', () => {
+  document.querySelectorAll('#helpPiano .key').forEach(k => {
+    k.classList.remove('anim-active', 'anim-green');
+    const num = k.querySelector('.key-number');
+    if(num) num.remove();
+  });
+  
+  const helpAnimText = document.getElementById('helpAnimText');
+  const OCTAVE = 4;
+  const clearTempHighlights = () => {
+    document.querySelectorAll('#helpPiano .key').forEach(k => {
+      k.classList.remove('anim-active');
+      const num = k.querySelector('.key-number');
+      if(num) num.remove();
+    });
+  };
+  
+  const highlight = (pc, text, isGreen=false) => {
+    const whiteKey = Array.from(document.getElementById('helpWhiteKeys').children).find(k => k.dataset.note === pc+OCTAVE);
+    const blackKey = Array.from(document.getElementById('helpBlackKeys').children).find(k => k.dataset.note === pc+OCTAVE);
+    const el = blackKey || whiteKey;
+    if(el){
+      el.classList.add('anim-active');
+      if(isGreen) el.classList.add('anim-green');
+      
+      const numDiv = document.createElement('div');
+      numDiv.className = 'key-number';
+      numDiv.textContent = text;
+      el.appendChild(numDiv);
+    }
+  };
+
+  helpAnimText.textContent = "Fórmula: 4 + 3 + 4";
+  
+  highlight('C', 'Raíz', true);
+
+  let steps = [
+    { n: 'C#', t: '1', delay: 500 },
+    { n: 'D', t: '2', delay: 1000 },
+    { n: 'D#', t: '3', delay: 1500 },
+    { n: 'E', t: '4 (3ra)', delay: 2000, green: true }
+  ];
+
+  steps.push(
+    { n: 'F', t: '1', delay: 3000 },
+    { n: 'F#', t: '2', delay: 3500 },
+    { n: 'G', t: '3 (5ta)', delay: 4000, green: true }
+  );
+
+  steps.push(
+    { n: 'G#', t: '1', delay: 5000 },
+    { n: 'A', t: '2', delay: 5500 },
+    { n: 'A#', t: '3', delay: 6000 },
+    { n: 'B', t: '4 (7ma)', delay: 6500, green: true }
+  );
+
+  steps.forEach(step => {
+    setTimeout(() => {
+      clearTempHighlights(); 
+      highlight(step.n, step.t, step.green);
+      if(step.green) playNote(step.n+OCTAVE, 0, 0.5);
+    }, step.delay);
+  });
+});
+
+/* DICTATION LOGIC */
+const dictationCard = document.getElementById('dictationCard');
+const dictationMenu = document.getElementById('dictationMenu');
+const dictationGame = document.getElementById('dictationGame');
+const dictEasyBtn = document.getElementById('dictEasyBtn');
+const dictMidBtn = document.getElementById('dictMidBtn');
+const dictBackBtn = document.getElementById('dictBackBtn');
+const dictWhiteKeys = document.getElementById('dictWhiteKeys');
+const dictBlackKeys = document.getElementById('dictBlackKeys');
+const dictPiano = document.getElementById('dictPiano');
+const dictNotesList = document.getElementById('dictNotesList');
+const dictModesList = document.getElementById('dictModesList');
+const dictPlayBtn = document.getElementById('dictPlayBtn');
+const dictNextBtn = document.getElementById('dictNextBtn');
+const dictFeedback = document.getElementById('dictFeedback');
+
+let dictPool = []; let dictRecent = []; const DICT_RECENT_MAX = 400;
+let currentDictChord = null; let selectedDictRoot = null; let selectedDictMode = null; let dictExpectedRoot = null; let dictExpectedSuffix = '';   
+
 function buildDictationPool(diff){
-  const pool=[]; for(const r of ROOTS){
+  const pool=[];
+  for(const r of ROOTS){
     const root = r.pc;
     const maj3 = pcUp(root,4), min3 = pcUp(root,3), fifth = pcUp(root,7);
     const maj7 = pcUp(root,11), dom7 = pcUp(root,10);
     const dim5 = pcUp(root,6), aug5 = pcUp(root,8), sus4 = pcUp(root,5), sus2 = pcUp(root,2);
+
     pool.push({ rootPc: root, letters: [root, maj3, fifth], suffix: '' });
     pool.push({ rootPc: root, letters: [root, min3, fifth], suffix: 'm' });
-    if(diff === 'facil'){ /* */ } else {
+
+    if(diff === 'facil'){ /* nothing */ }
+    else if(diff === 'intermedio'){
       pool.push({ rootPc: root, letters: [root, min3, dim5], suffix: 'dim' });
       pool.push({ rootPc: root, letters: [root, maj3, aug5], suffix: 'aug' });
       pool.push({ rootPc: root, letters: [root, sus4, pcUp(root,7)], suffix: 'sus4' });
@@ -843,135 +1489,239 @@ function buildDictationPool(diff){
       pool.push({ rootPc: root, letters: [root, maj3, fifth, maj7], suffix: 'maj7' });
       pool.push({ rootPc: root, letters: [root, maj3, fifth, dom7], suffix: '7' });
       pool.push({ rootPc: root, letters: [root, min3, fifth, dom7], suffix: 'm7' });
-      if(diff === 'dificil'){
-        const srcs = [{letters:[root,maj3,fifth], suffix:''},{letters:[root,min3,fifth], suffix:'m'},{letters:[root,min3,dim5], suffix:'dim'},{letters:[root,maj3,aug5], suffix:'aug'},{letters:[root,sus4,pcUp(root,7)], suffix:'sus4'},{letters:[root,sus2,pcUp(root,7)], suffix:'sus2'},{letters:[root,maj3,fifth,maj7], suffix:'maj7'},{letters:[root,maj3,fifth,dom7], suffix:'7'},{letters:[root,min3,fifth,dom7], suffix:'m7'}];
-        for(const src of srcs){ for(let inv = 1; inv < src.letters.length; inv++) pool.push({ rootPc: root, letters: src.letters.slice(), suffix: src.suffix, inversionIndex: inv }); }
-      }
     }
   }
-  pool.sort((a,b)=>{ const idxA = ALL_NOTES_ORDER.indexOf(a.rootPc); const idxB = ALL_NOTES_ORDER.indexOf(b.rootPc); if(idxA !== idxB) return idxA - idxB; return a.suffix.localeCompare(b.suffix); });
+  pool.sort((a,b) => {
+    const idxA = ALL_NOTES_ORDER.indexOf(a.rootPc);
+    const idxB = ALL_NOTES_ORDER.indexOf(b.rootPc);
+    if(idxA !== idxB) return idxA - idxB;
+    return a.suffix.localeCompare(b.suffix);
+  });
   return pool;
 }
 
 function dictKeyCandidatesWithMidi(pc){
-  return Array.from(dictPiano.querySelectorAll('.key')).filter(k => normalizePC(k.dataset.pc) === normalizePC(pc)).map(k => ({el:k, midi: noteToMidi(k.dataset.note)})).sort((a,b)=>a.midi-b.midi);
+  return Array.from(dictPiano.querySelectorAll('.key'))
+    .filter(k => normalizePC(k.dataset.pc) === normalizePC(pc))
+    .map(k => ({el:k, midi: noteToMidi(k.dataset.note)}))
+    .sort((a,b)=>a.midi-b.midi);
 }
 
 function renderDictChordVisual(chord){
-  Array.from(dictPiano.querySelectorAll('.key')).forEach(k=>k.classList.remove('dict-active')); if(!chord) return;
-  const uniq = Array.from(new Set(chord.letters.map(l=>normalizePC(l)))); const rootPc = normalizePC(chord.rootPc);
-  const candidatesByPc = {}; for(const pc of uniq) candidatesByPc[pc] = dictKeyCandidatesWithMidi(pc);
-  const bassPc = (chord.inversionIndex !== undefined) ? normalizePC(chord.letters[chord.inversionIndex % chord.letters.length]) : rootPc;
-  let chosenBass = null; const bassCandidates = candidatesByPc[bassPc] || [];
-  for(const bc of bassCandidates){ if(uniq.filter(p=>p!==bassPc).every(pc=>candidatesByPc[pc].some(c => c.midi > bc.midi))){ chosenBass = bc; break; } }
-  if(!chosenBass) chosenBass = bassCandidates[0] || null; if(chosenBass) chosenBass.el.classList.add('dict-active');
+  Array.from(dictPiano.querySelectorAll('.key')).forEach(k=>k.classList.remove('dict-active'));
+  dictExpectedRoot = null; dictExpectedSuffix = '';
+  if(!chord) return;
+  const uniq = Array.from(new Set(chord.letters.map(l=>normalizePC(l))));
+  const rootPc = normalizePC(chord.rootPc);
+  const candidatesByPc = {};
+  for(const pc of uniq) candidatesByPc[pc] = dictKeyCandidatesWithMidi(pc);
+
+  const bassPc = (chord.inversionIndex !== undefined && chord.inversionIndex !== null)
+    ? normalizePC(chord.letters[chord.inversionIndex % chord.letters.length])
+    : rootPc;
+
+  let chosenBass = null;
+  const bassCandidates = candidatesByPc[bassPc] || [];
+  for(const bc of bassCandidates){
+    const ok = uniq.filter(p=>p!==bassPc).every(pc=>{
+      const cand = candidatesByPc[pc] || [];
+      return cand.some(c => c.midi > bc.midi);
+    });
+    if(ok){ chosenBass = bc; break; }
+  }
+  if(!chosenBass) chosenBass = bassCandidates[0] || null;
+  if(chosenBass) chosenBass.el.classList.add('dict-active');
+
+  dictExpectedRoot = normalizePC(rootPc);
+  dictExpectedSuffix = chord.suffix || '';
   const bassMidi = chosenBass ? chosenBass.midi : null;
-  for(const pc of uniq){ if(pc===bassPc) continue; const candList = candidatesByPc[pc] || []; let pick = bassMidi !== null ? candList.find(c => c.midi > bassMidi) || candList[candList.length-1] || null : candList[0] || null; if(pick) pick.el.classList.add('dict-active'); }
+  for(const pc of uniq){
+    if(pc===bassPc) continue;
+    const candList = candidatesByPc[pc] || [];
+    let pick = null;
+    if(bassMidi !== null) pick = candList.find(c => c.midi > bassMidi) || candList[candList.length-1] || null;
+    else pick = candList[0] || null;
+    if(pick) pick.el.classList.add('dict-active');
+  }
 }
 
 function playDictChordSound(chord){
   if(!chord) return;
-  const uniq = Array.from(new Set(chord.letters.map(l=>normalizePC(l)))); const rootPc = normalizePC(chord.rootPc);
-  const candidatesByPc = {}; for(const pc of uniq) candidatesByPc[pc] = dictKeyCandidatesWithMidi(pc);
-  const bassPc = (chord.inversionIndex !== undefined) ? normalizePC(chord.letters[chord.inversionIndex % chord.letters.length]) : rootPc;
-  let chosenBass = null; const bassCandidates = candidatesByPc[bassPc] || [];
-  for(const bc of bassCandidates){ if(uniq.filter(p=>p!==bassPc).every(pc=>candidatesByPc[pc].some(c => c.midi > bc.midi))){ chosenBass = bc; break; } }
+  const uniq = Array.from(new Set(chord.letters.map(l=>normalizePC(l))));
+  const rootPc = normalizePC(chord.rootPc);
+  const candidatesByPc = {};
+  for(const pc of uniq) candidatesByPc[pc] = dictKeyCandidatesWithMidi(pc);
+
+  const bassPc = (chord.inversionIndex !== undefined && chord.inversionIndex !== null)
+    ? normalizePC(chord.letters[chord.inversionIndex % chord.letters.length])
+    : rootPc;
+
+  const bassCandidates = candidatesByPc[bassPc] || [];
+  let chosenBass = null;
+  for(const bc of bassCandidates){
+    const ok = uniq.filter(p=>p!==bassPc).every(pc=>{
+      const cand = candidatesByPc[pc] || [];
+      return cand.some(c => c.midi > bc.midi);
+    });
+    if(ok){ chosenBass = bc; break; }
+  }
   if(!chosenBass) chosenBass = bassCandidates[0] || null;
-  const notes = []; if(chosenBass) notes.push(chosenBass.el.dataset.note);
+
+  const notes = [];
+  if(chosenBass) notes.push(chosenBass.el.dataset.note);
   const bassMidi = chosenBass ? chosenBass.midi : null;
-  for(const pc of uniq){ if(pc===bassPc) continue; const candList = candidatesByPc[pc] || []; let pick = bassMidi !== null ? candList.find(c=>c.midi>bassMidi) || candList[candList.length-1] || null : candList[0] || null; if(pick) notes.push(pick.el.dataset.note); }
+  for(const pc of uniq){
+    if(pc===bassPc) continue;
+    const candList = candidatesByPc[pc] || [];
+    let pick = null;
+    if(bassMidi !== null) pick = candList.find(c=>c.midi>bassMidi) || candList[candList.length-1] || null;
+    else pick = candList[0] || null;
+    if(pick) notes.push(pick.el.dataset.note);
+  }
   if(notes.length) playChordSound(notes);
 }
 
 function dictPickRandomFromPool(pool){
-  if(!pool || pool.length===0) return null; let tries=0, cand;
-  do{ cand = pool[Math.floor(Math.random()*pool.length)]; tries++; if(tries>400) break; }
-  while(dictRecent.includes((cand.rootPc||'') + '|' + (cand.suffix||'') + '|' + (cand.inversionIndex||'')) && tries<400);
+  if(!pool || pool.length===0) return null;
+  let tries=0, cand;
+  do{
+    cand = pool[Math.floor(Math.random()*pool.length)];
+    tries++;
+    if(tries>400) break;
+  } while(dictRecent.includes((cand.rootPc||'') + '|' + (cand.suffix||'') + '|' + (cand.inversionIndex||'')) && tries<400);
   dictRecent.push((cand.rootPc||'') + '|' + (cand.suffix||'') + '|' + (cand.inversionIndex||''));
-  if(dictRecent.length>400) dictRecent.shift(); return cand;
+  if(dictRecent.length>DICT_RECENT_MAX) dictRecent.shift();
+  return cand;
 }
 
-function nextDictChord(){
+function nextDictChord_v11(){
   if(!dictPool || dictPool.length===0) return;
-  const cand = dictPickRandomFromPool(dictPool); if(!cand) return;
-  currentDictChord = cand; renderDictChordVisual(cand);
+  const cand = dictPickRandomFromPool(dictPool);
+  if(!cand) return;
+  currentDictChord = cand;
+  renderDictChordVisual(cand);
   selectedDictRoot = null; selectedDictMode = null;
   Array.from(dictNotesList.children || []).forEach(ch=>ch.classList.remove('selected','correct','wrong'));
   Array.from(dictModesList.children || []).forEach(ch=>ch.classList.remove('selected','correct','wrong'));
-  dictFeedback.style.color = 'var(--muted)'; dictFeedback.textContent = 'Elige tónica y modo.';
-  updateDictUIState();
+  dictFeedback.style.color = 'var(--muted)';
+  dictFeedback.textContent = 'Elige tónica y modo.';
 }
 
-function renderDictNotesList(){
-  dictNotesList.innerHTML=''; ALL_NOTES_ORDER.forEach(pc=>{
+function renderDictNotesList_v11(){
+  dictNotesList.innerHTML='';
+  ALL_NOTES_ORDER.forEach(pc=>{
     const span=document.createElement('div'); span.className='dict-chip'; span.textContent=spanishNameFromPC(pc); span.dataset.pc=pc;
     span.addEventListener('click', ()=>{
       const sel = normalizePC(span.dataset.pc);
       if(selectedDictRoot===sel){ selectedDictRoot=null; span.classList.remove('selected'); }
       else{ Array.from(dictNotesList.children).forEach(c=>c.classList.remove('selected')); selectedDictRoot=sel; span.classList.add('selected'); }
-      updateDictUIState();
     });
     dictNotesList.appendChild(span);
   });
 }
 function readableModeFromSuffix(s){
   if(!s) return 'Mayor'; if(s==='m') return 'Menor'; if(s==='dim') return 'Disminuido'; if(s==='aug') return 'Aumentado';
-  if(s==='sus4') return 'Sus4'; if(s==='sus2') return 'Sus2'; if(s==='maj7') return 'Maj7'; if(s==='7') return '7'; if(s==='m7') return 'm7'; return s;
+  if(s==='sus4') return 'Sus4'; if(s==='sus2') return 'Sus2'; if(s==='maj7') return 'Maj7'; if(s==='7') return '7'; if(s==='m7') return 'm7';
+  return s;
 }
-function renderDictModesList(pool){
-  dictModesList.innerHTML=''; const modes=new Map();
+function renderDictModesList_v11(pool){
+  dictModesList.innerHTML='';
+  const modes=new Map();
   pool.forEach(p=>{ const s=p.suffix||''; if(!modes.has(s)) modes.set(s, readableModeFromSuffix(s)); });
   const order=['','m','dim','aug','sus4','sus2','maj7','7','m7'];
   Array.from(modes.entries()).sort((a,b)=> (order.indexOf(a[0])===-1?999:order.indexOf(a[0])) - (order.indexOf(b[0])===-1?999:order.indexOf(b[0])) )
     .forEach(([s,label])=>{
       const span=document.createElement('div'); span.className='dict-chip'; span.textContent=label; span.dataset.suffix=s;
       span.addEventListener('click', ()=>{
-        Array.from(dictModesList.children).forEach(c=>c.classList.remove('selected')); span.classList.add('selected'); selectedDictMode=s; updateDictUIState();
+        Array.from(dictModesList.children).forEach(c=>c.classList.remove('selected'));
+        span.classList.add('selected'); selectedDictMode=s;
+        if(selectedDictRoot !== null){
+           checkDictationLogic();
+        }
       });
       dictModesList.appendChild(span);
     });
 }
-function updateDictUIState(){ document.getElementById('dictCheckBtn').disabled = !(selectedDictRoot && selectedDictMode !== null); }
 
-document.getElementById('dictCheckBtn').addEventListener('click', ()=>{
+function checkDictationLogic(){
   if(!currentDictChord) return;
-  const expectedRoot = normalizePC(currentDictChord.rootPc); const expectedSuffix = currentDictChord.suffix || '';
-  const userRoot = selectedDictRoot || ''; const userMode = selectedDictMode || '';
+  const expectedRoot = normalizePC(currentDictChord.rootPc);
+  const expectedSuffix = currentDictChord.suffix || '';
+  const userRoot = selectedDictRoot || '';
+  const userMode = selectedDictMode || '';
   Array.from(dictNotesList.children || []).forEach(c=>c.classList.remove('correct','wrong'));
   Array.from(dictModesList.children || []).forEach(c=>c.classList.remove('correct','wrong'));
-  Array.from(dictNotesList.children || []).forEach(c=>{ if(normalizePC(c.dataset.pc)===userRoot) { if(userRoot===expectedRoot) c.classList.add('correct'); else c.classList.add('wrong'); } });
-  Array.from(dictModesList.children || []).forEach(c=>{ if((c.dataset.suffix||'')===userMode) { if(userMode===expectedSuffix) c.classList.add('correct'); else c.classList.add('wrong'); } });
+  Array.from(dictNotesList.children || []).forEach(c=>{
+    if(normalizePC(c.dataset.pc)===userRoot) { if(userRoot===expectedRoot) c.classList.add('correct'); else c.classList.add('wrong'); }
+  });
+  Array.from(dictModesList.children || []).forEach(c=>{
+    if((c.dataset.suffix||'')===userMode) { if(userMode===expectedSuffix) c.classList.add('correct'); else c.classList.add('wrong'); }
+  });
   if(userRoot===expectedRoot && userMode===expectedSuffix){
-    dictFeedback.style.color='var(--success)'; dictFeedback.textContent='¡Correcto!'; playDictChordSound(currentDictChord); setTimeout(()=> nextDictChord(), 700);
+    dictFeedback.style.color='var(--success)'; dictFeedback.textContent='¡Correcto!'; playDictChordSound(currentDictChord);
+    setTimeout(()=> nextDictChord_v11(), 700);
   } else {
-    dictFeedback.style.color='var(--danger)'; dictFeedback.textContent='Incorrecto. Inténtalo de nuevo.'; playErrorSound();
+    dictFeedback.style.color='var(--danger)';
+    let msg='Incorrecto.'; if(userRoot!==expectedRoot && userMode!==expectedSuffix) msg='Tónica y modo incorrectos.'; else if(userRoot!==expectedRoot) msg='Tónica incorrecta.'; else if(userMode!==expectedSuffix) msg='Modo incorrecto.';
+    dictFeedback.textContent = msg; playErrorSound();
+  }
+}
+
+document.getElementById('modeDictationBtn').addEventListener('click', ()=>{
+  menuPanel.style.display = 'none';
+  dictationCard.style.display=''; dictationMenu.style.display=''; dictationGame.style.display='none';
+});
+dictBackBtn.addEventListener('click', ()=>{
+  dictationGame.style.display='none'; dictationMenu.style.display='none'; dictationCard.style.display='none';
+  menuPanel.style.display='';
+});
+dictEasyBtn.addEventListener('click', ()=>{
+  dictPool = buildDictationPool('facil'); dictRecent=[]; renderDictNotesList_v11(); renderDictModesList_v11(dictPool);
+  dictationMenu.style.display='none'; dictationGame.style.display=''; dictNextBtn.disabled=false; dictPlayBtn.disabled=false;
+  nextDictChord_v11();
+});
+dictMidBtn.addEventListener('click', ()=>{
+  dictPool = buildDictationPool('intermedio'); dictRecent=[]; renderDictNotesList_v11(); renderDictModesList_v11(dictPool);
+  dictationMenu.style.display='none'; dictationGame.style.display=''; dictNextBtn.disabled=false; dictPlayBtn.disabled=false;
+  nextDictChord_v11();
+});
+dictPlayBtn.addEventListener('click', ()=>{ if(currentDictChord) playDictChordSound(currentDictChord); });
+dictNextBtn.addEventListener('click', ()=> nextDictChord_v11());
+
+historyBtn.addEventListener('click', showHistory);
+historyBackBtn.addEventListener('click', goBackToMenu);
+
+buildPiano();
+buildChordPool();
+buildDictationPiano();
+buildHelpPiano();
+
+modeMajorMinorBtn.addEventListener('click', ()=> { ensureAudio(); startMode('majorminor'); });
+modeSeventhsBtn.addEventListener('click', ()=> { ensureAudio(); startMode('sevenths'); });
+modeAlteredBtn.addEventListener('click', ()=> { ensureAudio(); startMode('altered'); });
+modeAllFundamentalBtn.addEventListener('click', ()=> { ensureAudio(); startMode('allfundamental'); });
+
+helpBtn.addEventListener('click', showHelp);
+helpBackBtn.addEventListener('click', goBackToMenu);
+backBtn.addEventListener('click', goBackToMenu);
+playChordBtn.addEventListener('click', ()=> { if(!currentChord_local) return; if(currentChord_local.playNotes && currentChord_local.playNotes.length) playChordSound(currentChord_local.playNotes); else playChordSound(Array.from(new Set(currentChord_local.letters))); if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); });
+clearBtn.addEventListener('click', clearSelection);
+
+modeFreePianoBtn.addEventListener('click', startFreePiano);
+
+const fsBtnMenu = document.getElementById('fsBtnMenu');
+fsBtnMenu.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
   }
 });
 
-document.getElementById('modeDictationBtn').addEventListener('click', (ev)=>{ ev.preventDefault(); menuPanel.style.display='none'; dictationCard.style.display='block'; });
-dictBackBtn.addEventListener('click', ()=>{ dictationGame.style.display='none'; dictationMenu.style.display='none'; dictationCard.style.display='none'; menuPanel.style.display='block'; });
-document.getElementById('dictEasyBtn').addEventListener('click', ()=>{ dictPool = buildDictationPool('facil'); dictationMenu.style.display='none'; dictationGame.style.display='block'; renderDictNotesList(); renderDictModesList(dictPool); nextDictChord(); });
-document.getElementById('dictMidBtn').addEventListener('click', ()=>{ dictPool = buildDictationPool('intermedio'); dictationMenu.style.display='none'; dictationGame.style.display='block'; renderDictNotesList(); renderDictModesList(dictPool); nextDictChord(); });
-document.getElementById('dictHardBtn').addEventListener('click', ()=>{ dictPool = buildDictationPool('dificil'); dictationMenu.style.display='none'; dictationGame.style.display='block'; renderDictNotesList(); renderDictModesList(dictPool); nextDictChord(); });
-document.getElementById('dictPlayBtn').addEventListener('click', ()=>{ if(currentDictChord) playDictChordSound(currentDictChord); });
-document.getElementById('dictNextBtn').addEventListener('click', nextDictChord);
-
-/* ---------- INIT ---------- */
-buildPiano(); buildDictationPiano();
-
-document.getElementById('modeMajorMinorBtn').addEventListener('click', ()=> { ensureAudio(); startMode('majorminor'); });
-document.getElementById('modeSeventhsBtn').addEventListener('click', ()=> { ensureAudio(); startMode('sevenths'); });
-document.getElementById('modeAlteredBtn').addEventListener('click', ()=> { ensureAudio(); startMode('altered'); });
-document.getElementById('modeInversionBtn').addEventListener('click', ()=> { ensureAudio(); startMode('inversions'); });
-document.getElementById('helpBtn').addEventListener('click', (ev)=>{ ev.preventDefault(); showHelp(); });
-document.getElementById('historyBtn').addEventListener('click', (ev)=>{ ev.preventDefault(); showHistory(); });
-helpBackBtn.addEventListener('click', goBackToMenu);
-historyBackBtn.addEventListener('click', goBackToMenu);
-backBtn.addEventListener('click', goBackToMenu);
-playChordBtn.addEventListener('click', ()=> { if(!currentChord_local) return; if(currentChord_local.playNotes && currentChord_local.playNotes.length) playChordSound(currentChord_local.playNotes); else playChordSound(currentChord_local.letters); });
-clearBtn.addEventListener('click', clearSelection);
-checkBtn.addEventListener('click', checkSelection);
-
   </script>
 </body>
-</html>
+        </html>
