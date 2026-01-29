@@ -14,9 +14,11 @@
   --free-piano-bg: linear-gradient(135deg, #2dd4bf 0%, #3a7bd5 100%);
 }
 *{box-sizing:border-box; touch-action: manipulation; } 
-html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:linear-gradient(180deg,var(--bg) 0%, #071827 100%);color:var(--text);-webkit-font-smoothing:antialiased; overflow-x: hidden;}
 
-main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; display: flex; flex-direction: column;}
+/* Viewport dinámico para móviles */
+html,body{height: 100dvh; height: 100%; margin:0; overflow: hidden; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:linear-gradient(180deg,var(--bg) 0%, #071827 100%);color:var(--text);-webkit-font-smoothing:antialiased; overflow-x: hidden;}
+
+main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; height: 100%; display: flex; flex-direction: column; overflow-y: auto;}
 
 .menu-title-main { font-weight:900; font-size:1.3rem; margin-bottom:6px; text-shadow: 0 0 10px rgba(96,165,250,0.3); }
 .menu-subtitle { color:var(--muted); margin-bottom:12px; }
@@ -27,7 +29,7 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
 .btn{border:none;padding:10px 10px;border-radius:10px;background:linear-gradient(90deg,var(--accent-2),var(--accent));color:#fff;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4); font-size: 0.9rem; transition: transform 0.1s;}
 .btn:active { transform: scale(0.98); }
 
-/* Botón Piano Libre estilo especial */
+/* Botón Piano Libre */
 .free-piano-btn {
   background: var(--free-piano-bg); 
   color: #fff; 
@@ -43,24 +45,17 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
 .helpBtn{background:linear-gradient(90deg,var(--helpA),var(--helpB));color:#111;}
 .historyBtn{background:linear-gradient(90deg,var(--historyA),var(--historyB));color:#fff; border:1px solid rgba(255,255,255,0.1)}
 
-/* Grid de Modos - Modificado para el nuevo diseño */
+/* Grid de Modos */
 .mode-grid{
   display:grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 Columnas base */
+  grid-template-columns: repeat(3, 1fr); 
   gap:8px;
   margin-bottom:8px;
 }
-.full-width-btn {
-  grid-column: span 3; /* Ocupa las 3 columnas */
-}
+.full-width-btn { grid-column: span 3; }
 
-/* Grid de Sonidos - 4 Botones en línea */
-.sound-grid { 
-  display: grid; 
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 6px; 
-  margin-top: 5px; 
-}
+/* Grid de Sonidos */
+.sound-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 5px; }
 .sound-btn { 
   background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); 
   padding: 8px 4px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.75rem; text-align: center;
@@ -85,6 +80,43 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
   letter-spacing: 1px;
 }
 
+/* Contenedor botón pantalla completa */
+.fs-container {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
+}
+
+/* Texto siempre visible */
+.fs-text {
+  color: var(--muted);
+  font-size: 0.5rem; 
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: block; 
+}
+
+.fullscreen-btn { 
+  background: rgba(255,255,255,0.03); 
+  color:var(--muted); 
+  border:1px solid rgba(255,255,255,0.04); 
+  padding:6px 10px; 
+  border-radius:8px; 
+  cursor:pointer; 
+  font-weight:800; 
+  font-size: 1rem; 
+  line-height: 1; 
+}
+
+/* Clase para forzar ocultamiento */
+.force-hide { display: none !important; }
+
 .helpCard, .historyCard{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);display:none;}
 
 .labelRow{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
@@ -96,13 +128,19 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
 .game-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
 .game-top h2 { margin:0; font-size:1.1rem; font-weight:900; }
 .backBtn { background: rgba(255,255,255,0.03); color:var(--text); border:1px solid rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:800; }
-.fullscreen-btn { background: rgba(255,255,255,0.03); color:var(--muted); border:1px solid rgba(255,255,255,0.04); padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:800; position: absolute; top: 12px; right: 12px; font-size: 1.2rem; line-height: 1; }
 
 .chordLabel{display:block;margin-bottom:4px; font-size: 0.95rem;}
 .hint{color:var(--muted);margin-top:4px;margin-bottom:8px; font-size: 0.9rem;}
 
 .pianoArea{margin-top:8px; width: 100%; padding: 0;}
-.piano { position:relative; height:155px; border-radius:12px; overflow:visible; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); padding:4px; box-shadow:0 6px 18px rgba(0,0,0,0.5); }
+
+.piano { 
+  position:relative; 
+  height: 32vh; 
+  max-height: 180px; 
+  min-height: 120px; 
+  border-radius:12px; overflow:visible; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01)); padding:4px; box-shadow:0 6px 18px rgba(0,0,0,0.5); 
+}
 .white-keys { display:flex; height:100%; user-select:none; }
 .key { position:relative; display:flex; align-items:flex-end; justify-content:center; font-size:10px; cursor:pointer; transition: background 0.05s; }
 .key.pressed { filter: brightness(0.9); }
@@ -159,8 +197,28 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
 .dictation .key.dict-active { background: var(--success) !important; color:#fff !important; box-shadow:0 6px 18px rgba(81,207,102,0.22) !important; }
 .dictation .key { cursor: default; pointer-events: none; }
 
-.dict-list { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-.dict-chip { padding:6px 8px; background:var(--card); border-radius:8px; border:1px solid rgba(255,255,255,0.02); color:var(--text); font-weight:700; cursor:pointer; user-select:none; font-size: 0.85rem;}
+/* Dictados Grid optimizado */
+.dict-list { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(28px, 1fr)); 
+  gap: 6px; 
+  margin-top:8px; 
+}
+.dict-chip { 
+  padding: 8px 4px; 
+  background:var(--card); 
+  border-radius:12px; 
+  border:1px solid rgba(255,255,255,0.02); 
+  color:var(--text); 
+  font-weight:700; 
+  cursor:pointer; 
+  user-select:none; 
+  font-size: 1rem; 
+  min-height: 50px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
 .dict-chip.selected { outline: 2px solid var(--accent); transform: translateY(-2px); }
 .dict-chip.correct { background: rgba(81,207,102,0.12); border-color: rgba(81,207,102,0.25); color:var(--success); }
 .dict-chip.wrong { background: rgba(250,82,82,0.06); border-color: rgba(250,82,82,0.18); color:var(--danger); }
@@ -170,7 +228,7 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
 .feedback { margin-left:8px; font-weight:800; color:var(--muted); font-size: 0.9rem; }
 
 .contextual-help {
-  margin-top: 5px; 
+  margin-top:5px; 
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
@@ -237,8 +295,7 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
   .btn { font-size: 0.8rem; padding: 8px; }
   .sound-grid { grid-template-columns: repeat(4, 1fr); }
   .contextual-help { display: block !important; }
-  .dict-chip { font-size: 0.75rem; padding: 4px 6px; }
-  .dict-list { gap: 4px; }
+  .dict-chip { font-size: 1.1rem; padding: 8px 2px; }
   
   @media (max-height: 400px) {
     .contextual-help ul { grid-template-columns: 1fr !important; }
@@ -247,7 +304,7 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
     .stat-box { padding: 5px; }
     .stat-value { font-size: 1.1rem; }
     .stat-label { font-size: 0.6rem; }
-    .piano { height: 130px; }
+    .piano { height: 28vh; min-height: 90px; max-height: 130px; }
     .menu-panel { padding: 8px; }
     .mode-grid { gap: 4px; }
     .contextual-help { margin-top: 2px; padding: 5px; }
@@ -321,45 +378,44 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
 
   <main>
     <section id="menuPanel" class="menu-panel">
-      <button id="fsBtnMenu" class="fullscreen-btn" title="Pantalla Completa">⛶</button>
+      <!-- Contenedor con texto corto -->
+      <div class="fs-container">
+        <span class="fs-text">RECOMENDADO →</span>
+        <button id="fsBtnMenu" class="fullscreen-btn" title="Pantalla Completa">⛶</button>
+      </div>
+
       <div class="menu-title-main">Construcción de acordes</div>
       <div class="menu-subtitle">Ejercicios</div>
 
       <div class="mode-grid">
-        <!-- Renglón 1: 3 botones -->
         <button class="btn" id="modeMajorMinorBtn">Mayores y menores</button>
         <button class="btn" id="modeSeventhsBtn">Acordes con 7mas</button>
         <button class="btn" id="modeAlteredBtn">Disminuido / Aumentado / sus</button>
         
-        <!-- Renglón 2: 1 botón ancho -->
         <button class="btn full-width-btn" id="modeAllFundamentalBtn">Todos los acordes</button>
         
-        <!-- Renglón 3: 1 botón ancho -->
         <button class="btn full-width-btn" id="modeDictationBtn">Dictados</button>
         
-        <!-- Renglón 4: 1 botón ancho -->
         <button class="btn helpBtn full-width-btn" id="helpBtn">Ayuda</button>
         
-        <!-- Renglón 5: 1 botón ancho -->
         <button class="btn historyBtn full-width-btn" id="historyBtn">Estadísticas</button>
       </div>
 
       <!-- Separación -->
       <div class="separator-line"></div>
 
-      <!-- Renglón 6: Estilos de Piano (4 botones) -->
+      <!-- Estilos -->
       <div class="sound-label">Estilo de Piano</div>
       <div class="sound-grid" id="soundButtons">
         <button class="sound-btn active" data-mode="0">Clásico</button>
-        <button class="sound-btn" data-mode="1">Organo</button> <!-- Antes Synth 80s -->
-        <button class="sound-btn" data-mode="3">Espacial</button> <!-- Antes Space -->
+        <button class="sound-btn" data-mode="1">Organo</button>
+        <button class="sound-btn" data-mode="3">Espacial</button>
         <button class="sound-btn" data-mode="random">Mezcla</button>
       </div>
 
       <!-- Separación -->
       <div class="separator-line"></div>
       
-      <!-- Renglón 7: Piano Libre -->
       <button class="btn free-piano-btn" id="modeFreePianoBtn">🎹 Piano Libre</button>
     </section>
 
@@ -479,7 +535,6 @@ main{max-width:1000px;margin:0 auto;padding: 5px 10px 0 10px; min-height:100vh; 
         <div class="mode-grid" style="max-width:640px;">
           <button class="btn" id="dictEasyBtn">Mayores y menores</button>
           <button class="btn" id="dictMidBtn">Todos los acordes</button>
-          <!-- Hard Mode (Inversions) REMOVED as per request -->
         </div>
       </div>
       <div id="dictationGame" style="display:none; margin-top:12px;">
@@ -575,9 +630,9 @@ function midiToFreq(m){ return 440 * Math.pow(2,(m-69)/12); }
 
 const SOUND_PRESETS = {
   0: { baseType: 'triangle', harmType: 'sine', attack: 0.01, decay: 1.2, harmGain: 0.15 }, // Clásico
-  1: { baseType: 'sawtooth', harmType: 'square', attack: 0.01, decay: 0.8, harmGain: 0.2 }, // Organo (Synth 80s modified slightly)
-  2: { baseType: 'triangle', harmType: 'triangle', attack: 0.005, decay: 0.6, harmGain: 0.4 }, // (Unused in UI but kept)
-  3: { baseType: 'sine', harmType: null, attack: 0.15, decay: 2.5, harmGain: 0 } // Espacial (Space)
+  1: { baseType: 'sawtooth', harmType: 'square', attack: 0.01, decay: 0.8, harmGain: 0.2 }, // Organo
+  2: { baseType: 'triangle', harmType: 'triangle', attack: 0.005, decay: 0.6, harmGain: 0.4 }, 
+  3: { baseType: 'sine', harmType: null, attack: 0.15, decay: 2.5, harmGain: 0 } // Espacial
 };
 
 let selectedSoundMode = '0'; 
@@ -1193,6 +1248,13 @@ function startMode(mode){
   selectedMap.clear();
   buildPiano();
   buildChordPool(mode);
+
+  // FIX: Remover la clase 'force-hide' que se usa en Piano Libre
+  const gameGameElements = document.getElementById('gameGameElements');
+  const contextualHelp = document.getElementById('contextualHelp');
+  gameGameElements.classList.remove('force-hide');
+  contextualHelp.classList.remove('force-hide');
+  
   renderContextualHelp(mode);
   
   document.getElementById('gameGameElements').style.display = 'block';
@@ -1224,8 +1286,12 @@ function startFreePiano(){
   historyCard.style.display = 'none';
   dictationCard.style.display = 'none';
   
-  document.getElementById('gameGameElements').style.display = 'none';
-  document.getElementById('contextualHelp').style.display = 'none';
+  const gameGameElements = document.getElementById('gameGameElements');
+  const contextualHelp = document.getElementById('contextualHelp');
+  
+  gameGameElements.classList.add('force-hide');
+  contextualHelp.classList.add('force-hide');
+
   modeTitle.textContent = "Piano Libre";
   
   buildPiano();
